@@ -1,7 +1,48 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#000"/>
-  <rect x="20" y="20" width="472" height="472" rx="80" fill="#0a0a0a"/>
-  <text x="256" y="200" font-family="Arial Black,sans-serif" font-size="120" font-weight="900" fill="#a3e635" text-anchor="middle">RUN</text>
-  <text x="256" y="310" font-family="Arial Black,sans-serif" font-size="72" font-weight="900" fill="#22d3ee" text-anchor="middle">COACH</text>
-  <text x="256" y="390" font-family="Arial,sans-serif" font-size="42" fill="#a78bfa" text-anchor="middle">MOB/SIŁ</text>
+  <defs>
+    <radialGradient id="bg" cx="55%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#0f1f0a"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#000"/>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+
+  <!-- Speed lines (cyan) -->
+  <line x1="42" y1="224" x2="148" y2="224" stroke="#22d3ee" stroke-width="9" stroke-linecap="round" opacity="0.55"/>
+  <line x1="28" y1="264" x2="138" y2="264" stroke="#22d3ee" stroke-width="7" stroke-linecap="round" opacity="0.35"/>
+  <line x1="50" y1="304" x2="152" y2="304" stroke="#22d3ee" stroke-width="5" stroke-linecap="round" opacity="0.2"/>
+
+  <!-- Runner silhouette (lime green) -->
+  <g fill="#a3e635" filter="url(#glow)">
+    <!-- Head -->
+    <circle cx="308" cy="112" r="44"/>
+
+    <!-- Torso (leaning forward) -->
+    <path d="M288 153 L255 272 L308 278 L332 162 Z"/>
+
+    <!-- Front arm (up-forward) -->
+    <line x1="318" y1="185" x2="405" y2="138" stroke="#a3e635" stroke-width="28" stroke-linecap="round"/>
+
+    <!-- Back arm (down-back) -->
+    <line x1="272" y1="208" x2="188" y2="272" stroke="#a3e635" stroke-width="28" stroke-linecap="round"/>
+
+    <!-- Front leg (extended forward-down) -->
+    <polyline points="295,275 338,362 408,400" stroke="#a3e635" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+    <!-- Front foot -->
+    <rect x="395" y="392" width="68" height="22" rx="11" fill="#a3e635"/>
+
+    <!-- Back leg (extended back) -->
+    <polyline points="268,275 232,355 162,386" stroke="#a3e635" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+    <!-- Back foot -->
+    <rect x="142" y="378" width="62" height="20" rx="10" fill="#a3e635"/>
+  </g>
 </svg>
