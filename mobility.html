@@ -174,7 +174,293 @@ ul.errs li::before{content:'✗';position:absolute;left:0;color:var(--red);font-
 </div>
 
 <script>
-// ─── PLACEHOLDER — JS będzie dodany w następnych etapach ───
+// ═══════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════
+const PROGRAM_START = '2026-05-05';
+const PHASES = {
+  baza:       { weeks:[1,5],  color:'#22d3ee', label:'BAZA' },
+  budowanie:  { weeks:[6,10], color:'#a3e635', label:'BUDOWANIE' },
+  szczyt:     { weeks:[11,15],color:'#fbbf24', label:'SZCZYT' },
+  utrzymanie: { weeks:[16,18],color:'#fb923c', label:'UTRZYMANIE' }
+};
+const CATS = {
+  rolling:     { label:'ROLLING',       color:'#22d3ee' },
+  core:        { label:'GŁĘBOKA STAB.', color:'#a78bfa' },
+  lumbopelvic: { label:'L-MIEDNICZNA',  color:'#fbbf24' },
+  hip:         { label:'BIODRO-SIŁA',   color:'#fb923c' },
+  mobility:    { label:'MOBILNOŚĆ',     color:'#4ade80' },
+  balance:     { label:'BALANS',        color:'#22d3ee' }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// EXERCISE DATABASE — 28 ćwiczeń, EBM
+// ═══════════════════════════════════════════════════════════════
+const EX = [
+// ── ROLLING (6) ─────────────────────────────────────────────
+{id:'r1',name:'Rolling łydek',icon:'🦵',cat:'rolling',time:60,bilateral:true,sets:1,reps:null,
+ muscles:'Gastrocnemius, soleus, powięź podeszwowa',diff:1,
+ steps:['Usiądź, wałek pod łydką jednej nogi; ręce za plecami jako podpora','Unieś biodra — przenieś ciężar na łydkę','Roluj od ścięgna Achillesa do dołu podkolanowego, 2–3 cm/sek','Na tkliwym punkcie zatrzymaj się i wykonaj 5–8 zgięć grzbietowych stopy','Powtórz na drugą stronę'],
+ errors:['Zbyt szybkie tempo (>3 cm/sek) — brak efektu na mechanoreceptory','Omijanie bolesnych punktów — właśnie tam należy się zatrzymać','Rolowanie bezpośrednio na kostce lub stawie kolanowym'],
+ science:'Foam rolling ↓DOMS i ↑ROM bez utraty siły. Mechanizm: modulacja mechanoreceptorów Ruffini/Merkel, ↑perfuzja. Behm & Chaouachi, BJSM 2011 — FR zwiększa ROM; Pearcey et al., J Athl Train 2015 — FR redukuje DOMS 24–72h po wysiłku.',
+ prog:{w1:'30s/stronę, wolne tempo',w6:'60s + 8 zgięć grzbietowych w każdym punkcie',w11:'90s + zgięcie kolana podczas rolowania (rozwarcie powięzi)'}},
+
+{id:'r2',name:'Rolling pasma IT',icon:'🦵',cat:'rolling',time:60,bilateral:true,sets:1,reps:null,
+ muscles:'Tensor fasciae latae, pasmo IT, vastus lateralis',diff:2,
+ steps:['Połóż się bokiem; wałek pod zewnętrzną stroną uda','Górna noga ugięta i stopą na podłodze dla stabilizacji','Roluj powoli od biodra do 3–4 cm nad kolanem (NIE na kolanie)','Na tkliwym punkcie zatrzymaj i delikatnie rotuj udo do przodu/tyłu','Zmień stronę'],
+ errors:['Rollowanie bezpośrednio na stawie kolanowym — ryzyko urazu','Zbyt szybkie tempo bez zatrzymań','Brak rotacji uda w tkliwych miejscach'],
+ science:'ITBS to 2. najczęstsza kontuzja biegaczy (12% urazów). Rolling TFL w kombinacji ze wzmacnianiem abduktorów biodra redukuje ból i ↑zakres rotacji. Mucha et al., IJSPT 2017; Kaplan 2015 — epidemiologia ITBS.',
+ prog:{w1:'60s/stronę','w6':'90s + rotacje uda','w11':'2 min + targetowanie punktów spustowych (30s zatrzymanie)'}},
+
+{id:'r3',name:'Rolling czworogłowego',icon:'🦵',cat:'rolling',time:60,bilateral:true,sets:1,reps:null,
+ muscles:'Rectus femoris, vastus medialis/lateralis/intermedius',diff:1,
+ steps:['Połóż się na brzuchu; wałek pod przednią stroną uda (powyżej kolana)','Przenieś ciężar na uda i przedramiona','Roluj od kolana do bioder (NIE na staw biodrowy)','Szczególna uwaga na rectus femoris — centralnie','Na tkliwych miejscach zatrzymaj się i czekaj na rozluźnienie'],
+ errors:['Rollowanie bezpośrednio na rzepce','Ignorowanie środkowej części uda (rectus femoris najczęściej napięty)','Zbyt duży nacisk na początku — zacznij łagodnie'],
+ science:'FR czworogłowych ↓siłowy deficyt po treningu i ↓DOMS. Napięty rectus femoris → ↑siły kompresyjne w stawie rzepkowo-udowym → PFP. Healey et al., J Strength Cond Res 2014; Pearcey et al. 2015.',
+ prog:{w1:'60s/stronę',w6:'90s + zgięcie kolana na końcu',w11:'2 min + statyczne rozciąganie po rollingu'}},
+
+{id:'r4',name:'Rolling piriformis',icon:'🍑',cat:'rolling',time:60,bilateral:true,sets:1,reps:null,
+ muscles:'Gluteus maximus, piriformis, głębokie rotatory zewnętrzne',diff:2,
+ steps:['Usiądź na wałku; skrzyżuj prawą kostkę na lewym kolanie (figura 4)','Lekko pochyl się w stronę prawego pośladka — przenieś ciężar','Szukaj tkliwych punktów powoli przesuwając ciężar','Na bolesnym miejscu zatrzymaj się 20–30s','Zmień stronę'],
+ errors:['Siedzi prosto — bez pochylenia: nie trafia w piriformis','Za mały nacisk — noga nie jest skrzyżowana','Rollowanie na kości ogonowej lub kręgosłupie'],
+ science:'Piriformis syndrome — ucisk n. kulszowego przez m. gruszkowaty (6–8% bólów pośladkowych). Rolling ↓napięcie i ↑ruchomość stawu biodrowego. Tonley et al., JOSPT 2010; Cheatham et al., IJSPT 2015.',
+ prog:{w1:'45s/stronę z podparciem obu rąk',w6:'60s z jedną ręką (↑nacisk)',w11:'Piłka lacrosse zamiast wałka (↑precyzja)'}},
+
+{id:'r5',name:'Rolling klatki piersiowej',icon:'🔙',cat:'rolling',time:60,bilateral:false,sets:1,reps:null,
+ muscles:'Erector spinae Th, rhomboids, trapezius środkowy',diff:1,
+ steps:['Usiądź przed wałkiem; połóż go poziomo pod łopatkami (Th4–Th8)','Ręce splecione za głową; oprzyj się na wałku','Na każdym segmencie delikatnie wyprostuj się (extension) przez 5 oddechów','Przesuń wałek o 3–4 cm ku górze i powtórz segment po segmencie','NIE rollujesz odcinka lędźwiowego'],
+ errors:['Rollowanie L-spine — ryzyko nadmiernej lordozy','Przeprost szyi — głowa powinna być wsparta dłońmi','Zbyt szybkie tempo bez zatrzymań segmentowych'],
+ science:'Mobilność Th bezpośrednio wpływa na ekonomię biegu i mechanikę oddechową. Sztywność odcinka piersiowego → kompensacja lędźwiowa → ↑ryzyko LBP. Masaeli et al., J Bodyw Mov Ther 2020.',
+ prog:{w1:'5 segmentów × 5 oddechów',w6:'+uniesienie rąk w górę w każdym segmencie',w11:'+rotacja tułowia w każdym segmencie'}},
+
+{id:'r6',name:'Rolling podeszwy stopy',icon:'🦶',cat:'rolling',time:45,bilateral:true,sets:1,reps:null,
+ muscles:'Rozcięgno podeszwowe, flexor digitorum brevis, plantaris',diff:1,
+ steps:['Stań boso; piłka lacrosse/tenisowa pod stopą','Roluj od pięty do śródstopia (NIE na palce)','Trzy linie: środkowa, przyśrodkowa, boczna','Na tkliwych punktach zatrzymaj się z lekkim naciskiem 20–30s','Możesz wykonać siedząc dla mniejszego nacisku na początku'],
+ errors:['Zbyt duży nacisk od razu przy fasciopatii plantarnej','Rollowanie bezpośrednio na kości piętowej (ostry ból = sygnał stop)','Pomijanie łuku przyśrodkowego'],
+ science:'Rolling podeszwy ↓ból w fasciitis plantaris i ↑propriocepcję stopy. Kage et al., JOSPT 2020 — skuteczniejszy niż samo statyczne rozciąganie powięzi w redukcji bólu krótkoterminowo.',
+ prog:{w1:'30s/stopę siedząc',w6:'45s stojąc (↑nacisk)',w11:'60s stojąc + drążenie palców po'}},
+
+// ── GŁĘBOKA STABILIZACJA (5) ─────────────────────────────────
+{id:'s1',name:'Oddech przeponowy',icon:'🫁',cat:'core',time:null,bilateral:false,sets:2,reps:10,
+ muscles:'Przepona, transversus abdominis, dno miednicy, multifidus',diff:1,
+ steps:['Połóż się na plecach; kolana ugięte, stopy na podłodze','Jedną rękę na klatce, drugą na brzuchu','Wdech przez nos 4 sek — brzuch unosi się, klatka minimalna','Wydech przez usta 6 sek — brzuch opada, delikatne napięcie poniżej pępka','Poczuj 360° rozszerzenie (przód/tył/boki) — to "cylindr stabilizacyjny"','2 serie po 10 oddechów'],
+ errors:['Klatka unosi się zamiast brzucha — oddychanie szczytowe','Aktywne wciąganie brzucha zamiast naturalnego napięcia przy wydechu','Wstrzymywanie oddechu'],
+ science:'Przepona — kluczowy stabilizator kręgosłupa. Hodges & Richardson, Spine 1997: TrA aktywuje się anticipatoryjnie PRZED ruchem kończyn (feedforward). Dysfunkcja oddechu → ↓stabilizacja centralna. Kolar et al., JOSPT 2010 — DNS methodology.',
+ prog:{w1:'2×10 oddechów leżąc — nauka wzorca',w6:'2×10 siedząc (↑wymagania posturalne)',w11:'Integracja: oddech przeponowy podczas dead-bug i plank'}},
+
+{id:'s2',name:'Dead Bug',icon:'🐛',cat:'core',time:null,bilateral:true,sets:3,reps:8,
+ muscles:'Transversus abdominis, rectus abdominis, multifidus, erector spinae',diff:2,
+ steps:['Leż na plecach; dolne plecy PRZYLEGAJĄ do podłogi — flat back','Ramiona pionowo, kolana 90° w powietrzu','Wdech; WYDECH — aktywuj TrA (delikatne napięcie pod pępkiem)','Opuść JEDNOCZEŚNIE prawą rękę w tył i lewą nogę w dół','Kończyny prawie dotykają podłogi; plecy NIE odrywają się','Wróć i powtórz na drugą stronę'],
+ errors:['Oderwanie dolnych pleców — STOP, zmniejsz zakres ruchu','Wstrzymywanie oddechu podczas ruchu','Arm + noga tej samej strony (powinny być naprzemienne)'],
+ science:'Dead bug aktywuje TrA (56% MVIC) i RA (45% MVIC) przy siłach L4/L5 <2500N — bezpieczny nawet przy dyskopatiach. Escamilla et al., Med Sci Sports Exerc 2010; McGill, Low Back Disorders 2007.',
+ prog:{w1:'3×5/stronę — tylko noga lub tylko ramię',w6:'3×8/stronę — ramię + przeciwna noga',w11:'3×10/stronę + taśma oporowa na stopach'}},
+
+{id:'s3',name:'Plank',icon:'🏋',cat:'core',time:30,bilateral:false,sets:3,reps:null,
+ muscles:'Transversus abdominis, obliqui, gluteus maximus, erector spinae',diff:2,
+ steps:['Podpór na przedramionach; łokcie pod barkami','Ciało w jednej linii: stopy–kostki–kolana–biodra–ramiona–głowa','Delikatne napięcie pośladków i brzucha przez cały czas','Oddychaj spokojnie — oddech przeponowy','Nie dopuść do unoszenia ani opadania bioder'],
+ errors:['Biodra za wysokie (namiot) lub za niskie (przeprost lędźwi)','Wstrzymywanie oddechu — mięśnie nie pracują w pełni','Głowa wysunięta do przodu lub zwieszona'],
+ science:'Plank aktywuje TrA i multifidus bardziej niż sit-upy, przy znacznie niższych siłach ścinających na dyski L4/L5. McGill, J Biomech 1997; Endleman & Critchley, PT 2008 — EMG analysis.',
+ prog:{w1:'3×20s',w6:'3×40s',w11:'3×60s lub plank z uniesieniem kończyny'}},
+
+{id:'s4',name:'Side Plank',icon:'⬛',cat:'core',time:25,bilateral:true,sets:3,reps:null,
+ muscles:'Gluteus medius, obliquus ext./int., quadratus lumborum',diff:2,
+ steps:['Połóż się bokiem; łokieć pod ramieniem','Stopy jedna na drugiej lub staggered (lekko rozsunięte)','Unieś biodra — ciało w prostej linii od stóp do głowy','Górna ręka na biodrze lub uniesiona pionowo','Oddychaj; utrzymaj napięcie pośladka górnej nogi','Opcja: unieś górną nogę 10 cm'],
+ errors:['Opadanie bioder — brak aktywacji GLmed/QL','Rotacja tułowia do przodu lub tyłu','Opieranie całego ciężaru na kostce bocznej'],
+ science:'Side plank aktywuje gluteus medius (73% MVIC) i quadratus lumborum (38% MVIC). GLmed jest kluczowy dla stabilizacji miednicy podczas fazy podporu w biegu — jego słabość → Trendelenburg → ITBS i PFP. Boren et al., IJSPT 2011; Ekstrom et al., JOSPT 2007.',
+ prog:{w1:'3×20s/stronę',w6:'3×30s/stronę',w11:'3×45s + opcja z uniesieniem nogi'}},
+
+{id:'s5',name:'Hollow Body Hold',icon:'🍌',cat:'core',time:20,bilateral:false,sets:3,reps:null,
+ muscles:'Transversus abdominis, rectus abdominis, hip flexors',diff:3,
+ steps:['Leż na plecach; wyciśnij L-kręgosłup do podłogi (pelvic tilt posterior)','Ramiona wyciągnięte nad głowę','Unieś ramiona, głowę/bark i nogi 15 cm od podłogi','Dolne plecy CAŁY CZAS w kontakcie z podłogą','Utrzymaj i oddychaj płytko','Modyfikacja: kolana ugięte (łatwiej)'],
+ errors:['Oderwanie dolnych pleców — zmniejsz uniesienie nóg','Wstrzymywanie oddechu','Nogi zbyt wysoko — redukuje obciążenie anty-ekstensji'],
+ science:'Hollow body — fundament gimnastyczny anty-ekstensji. Aktywacja TrA + RA w zamkniętym łańcuchu kluczowa dla transferu sił w biegu. Hibbs et al., Sports Med 2008 — core stability i wyniki sportowe.',
+ prog:{w1:'3×10s kolana ugięte',w6:'3×20s nogi proste na 45°',w11:'3×30s nogi nisko (15 cm) + ramiona w górze'}},
+
+// ── L-MIEDNICZNA (5) ─────────────────────────────────────────
+{id:'p1',name:'Glute Bridge + ADIM',icon:'🍑',cat:'lumbopelvic',time:null,bilateral:false,sets:3,reps:12,
+ muscles:'Gluteus maximus, hamstrings, TrA (ADIM), multifidus',diff:1,
+ steps:['Leż na plecach; kolana ~90°, stopy na szerokość bioder','ADIM: wydech — delikatnie wciągnij pępek (aktywacja TrA)','Utrzymując ADIM — napnij pośladki i unieś biodra','Na górze: linia ramiona–biodra–kolana; ściśnij pośladki 2s','Powoli opuść; ADIM aktywne przez cały czas'],
+ errors:['Użycie hamstrings zamiast GM — czujesz z tyłu uda? Błąd','Hyperextension lędźwi na szczycie — biodra za wysoko','Brak ADIM — TrA nie aktywowany'],
+ science:'Glute bridge + ADIM ↑aktywację GM o 25% vs samo GB. Moon et al., J Phys Ther Sci 2014. GM — kluczowy w propulsji biegu i absorbcji sił lądowania. Comerford & Mottram, Man Ther 2001.',
+ prog:{w1:'3×10 dwunożnie, 2s hold',w6:'3×15 z 3s hold + marsz nóg',w11:'Single-leg GB (p5)'}},
+
+{id:'p2',name:'Bird Dog',icon:'🐦',cat:'lumbopelvic',time:null,bilateral:true,sets:3,reps:8,
+ muscles:'Multifidus, erector spinae, gluteus maximus, TrA',diff:2,
+ steps:['Czworonóg: nadgarstki pod barkami, kolana pod biodrami','Aktywuj TrA (delikatne napięcie) PRZED ruchem','Jednocześnie wyciągnij prawą rękę i lewą nogę do linii tułowia','Miednica POZIOMA — wyobraź sobie szklankę wody na plecach','Utrzymaj 3–5s; powróć kontrolowanie','Powtórz na drugą stronę'],
+ errors:['Rotacja miednicy — najczęstszy błąd: biodro unosi się w górę','Uniesienie nogi za wysoko → przeprost lędźwi','Zbyt szybkie tempo — kontrola > prędkość'],
+ science:'Bird dog aktywuje multifidus (52% MVIC) i TrA przy siłach L5 <600N. Najlepsza izolacja multifidusa przy minimalnym obciążeniu. McGill, Low Back Disorders 2007; Czaprowski et al. 2014.',
+ prog:{w1:'3×5/stronę z 3s hold',w6:'3×8/stronę z 5s hold',w11:'3×10 standing bird dog (trudniejszy wariant)'}},
+
+{id:'p3',name:'Superman Hold',icon:'🦸',cat:'lumbopelvic',time:null,bilateral:false,sets:3,reps:10,
+ muscles:'Erector spinae (bilateral), multifidus, gluteus maximus, rhomboids',diff:2,
+ steps:['Leż na brzuchu; ręce wyciągnięte nad głową, czoło na podłodze','Napnij pośladki; jednocześnie unieś obydwie ręce i nogi ~15 cm','Głowa w przedłużeniu kręgosłupa — wzrok w dół','Utrzymaj 3–5s; oddychaj','Powoli opuść; lekka przerwa','Wersja lekka: tylko ręce lub tylko nogi naprzemiennie'],
+ errors:['Hyperextension szyi — głowa za wysoko','Rotacja tułowia przy unoszeniu','Wstrzymywanie oddechu >5s'],
+ science:'Superman aktywuje erector spinae bilateralnie i GM w łańcuchu tylnym. Kluczowy dla siły łańcucha tylnego w bieganiu. Kuo et al., J Phys Ther Sci 2013.',
+ prog:{w1:'3×8 z 2s hold',w6:'3×10 z 3–5s hold',w11:'3×12 z obciążnikami na nadgarstkach/kostkach'}},
+
+{id:'p4',name:'Pallof Press',icon:'🏹',cat:'lumbopelvic',time:null,bilateral:true,sets:3,reps:10,
+ muscles:'Obliqui, TrA, GLmed — ćwiczenie anty-rotacyjne',diff:3,
+ steps:['Stań bokiem do punktu zaczepu taśmy (na wysokości klatki)','Chwyć taśmę obydwiema rękami przy klatce piersiowej','Aktywuj core — neutralny kręgosłup','Wypchnij ręce wyprostowane przed siebie — tułów NIE rotuje ani o milimetr','Utrzymaj 2s; wróć do klatki; powtórz','Zmień stronę'],
+ errors:['Rotacja tułowia podczas wypchnięcia — dyskwalifikuje ćwiczenie','Za mocna taśma na początku','Nogi za szeroko lub za wąsko'],
+ science:'Pallof press — anty-rotacja aktywuje obliqui zewnętrzny i wewnętrzny w funkcjonalnym wzorcu przenoszenia sił między półkulami ciała podczas biegu. Kibler et al. 2006; Abt et al., Med Sci Sports Exerc 2007.',
+ prog:{w1:'3×8/stronę stojąc (lekka taśma)',w6:'3×10 mocniejsza taśma',w11:'3×12 w pozycji wypadu (lunge)'}},
+
+{id:'p5',name:'Single-Leg Glute Bridge',icon:'🍑',cat:'lumbopelvic',time:null,bilateral:true,sets:3,reps:8,
+ muscles:'Gluteus maximus (unilateral), hamstrings, GLmed (stabilizacja)',diff:3,
+ steps:['Leż na plecach; prawa noga ugięta 90°, lewa wyprostowana w powietrzu','Aktywuj GM prawej nogi; ADIM','Unieś biodra do pełnej linii — miednica POZIOMA','Utrzymaj 2–3s — miednica nie opada na bok uniesionej nogi','Powoli opuść; nie kładź bioder w całości między powt.','Zmień stronę'],
+ errors:['Opadanie miednicy na stronę wolnej nogi (Trendelenburg) — to słabość GLmed','Użycie hamstrings zamiast GM','Hyperextension lędźwi na szczycie'],
+ science:'Single-leg GB ↑obciążenie GM i wymaga stabilizacji GLmed dla poziomej miednicy. Dystefano et al., JOSPT 2009; Buckthorpe et al., BJSM 2019 — kluczowy protokół przy PFP i ITBS.',
+ prog:{w1:'3×6/stronę z 2s hold',w6:'3×10/stronę z 3s hold',w11:'3×12/stronę + marsz nóg na szczycie'}},
+
+// ── BIODRO-SIŁA (5) ──────────────────────────────────────────
+{id:'h1',name:'Clamshell',icon:'🦀',cat:'hip',time:null,bilateral:true,sets:3,reps:15,
+ muscles:'Gluteus medius, gluteus minimus, piriformis, rotatory zewnętrzne',diff:1,
+ steps:['Leż bokiem; kolana ugięte 45°, biodra ugięte ~60°, stopy razem','Górna ręka na biodrze — kontroluj rotację miednicy','Otwórz górne kolano jak muszlę — tylko do poziomu biodra','Miednica NIE rotuje do tyłu — to najważniejsza wskazówka','Zatrzymaj 2s na górze; powoli opuść','Opcja: taśma oporowa tuż powyżej kolan'],
+ errors:['Rotacja miednicy do tyłu zamiast prawdziwej abdukcji — sprawdź ręką','Zbyt duże uniesienie nogi (>poziom biodra) → TFL dominuje','Brak kontroli przy powrocie — ekscentryka tak samo ważna'],
+ science:'Clamshell aktywuje selektywnie GLmed (81% MVIC) przy minimalnej aktywacji TFL. Z taśmą +35% aktywacji. Kluczowy w prewencji ITBS i PFP u biegaczy. Distefano et al., JOSPT 2009; Boren et al., IJSPT 2011.',
+ prog:{w1:'3×12/stronę bez taśmy',w6:'3×15 z lekką taśmą',w11:'3×20 z mocną taśmą + 2s hold'}},
+
+{id:'h2',name:'Hip Abduction leżąc',icon:'🦵',cat:'hip',time:null,bilateral:true,sets:3,reps:15,
+ muscles:'Gluteus medius posterior, gluteus minimus',diff:1,
+ steps:['Leż bokiem; nogi wyprostowane, dolna ręka pod głową','Górna noga prosto; delikatnie rotuj ją w dół (rotacja wewnętrzna) — izolacja GLmed posterior','Unieś górną nogę 30–40° (nie więcej)','Zatrzymaj 1–2s; powoli opuść','Kontrolowana faza ekscentryczna — nie upuszczaj'],
+ errors:['Rotacja zewnętrzna ("palce do sufitu") — przesuwa aktywację na TFL','Zbyt wysokie uniesienie >40° — TFL przejmuje pracę','Brak kontroli przy powrocie'],
+ science:'Abdukcja z rotacją wewnętrzną selektywnie aktywuje posterior GLmed (78% MVIC) — krytyczny dla redukcji knee valgus podczas biegu. Selkowitz et al., JOSPT 2013.',
+ prog:{w1:'3×12/stronę',w6:'3×15 + 2s hold',w11:'3×20 z taśmą oporową'}},
+
+{id:'h3',name:'Standing Hip Abduction',icon:'🧍',cat:'hip',time:null,bilateral:true,sets:3,reps:12,
+ muscles:'Gluteus medius, gluteus minimus, TrA (stabilizacja nogi stojącej)',diff:2,
+ steps:['Stań prosto; jedna ręka na ścianie dla lekkiego podparcia','Unieś jedną nogę w bok (abdukcja) 30–40°; kolano lekko ugięte','Noga stojąca lekko ugięta — to też ćwiczenie posturalne','Powoli powróć — pełna kontrola do końca','Opcja: taśma oporowa przy kostkach','Zmień stronę'],
+ errors:['Pochylanie tułowia w stronę uniesionej nogi — kompensacja słabości GLmed','Huśtanie impulsem zamiast kontrolowanego ruchu','Wyprostowane kolano stojącej nogi'],
+ science:'Stojąca wersja abdukcji angażuje core i stabilizatory postawy jednocześnie z GLmed (~65% MVIC) — bardziej funkcjonalna niż leżąca. Reiman et al., J Athl Train 2012.',
+ prog:{w1:'3×10 bez taśmy, z podparciem',w6:'3×12 z lekką taśmą',w11:'3×15 taśma + bez podparcia + wolne tempo 3s'}},
+
+{id:'h4',name:'Monster Walk',icon:'🚶',cat:'hip',time:null,bilateral:false,sets:3,reps:12,
+ muscles:'Gluteus medius, gluteus minimus, rotatory zewnętrzne — oba biodra',diff:2,
+ steps:['Taśma oporowa powyżej kolan lub na kostkach (trudniej)','Mini-squat: ugięcie 20–30°; plecy proste, kolana nad palcami','Kroky bokiem: krok prawą → krok lewą (utrzymuj napięcie taśmy)','10–12 kroków w prawo; 10–12 kroków z powrotem','Kolana nie składają się do środka — walczysz z taśmą'],
+ errors:['Kolana składają się do środka — taśma za mocna','Wyprostowanie bioder i kolan między krokami','Pochylanie tułowia na boki przy każdym kroku'],
+ science:'Monster walk aktywuje GLmed (64% MVIC) i Gmin w zamkniętym łańcuchu. Symuluje obciążenie w biegu. Distefano et al., JOSPT 2009 — jeden z najwyższych wskaźników aktywacji GLmed.',
+ prog:{w1:'2×8 kroków/stronę taśma na udach',w6:'3×10 kroków/stronę taśma na kostkach',w11:'3×15 kroków + głębszy squat'}},
+
+{id:'h5',name:'Hip Hinge',icon:'🏗',cat:'hip',time:null,bilateral:false,sets:3,reps:10,
+ muscles:'Gluteus maximus, hamstrings, erector spinae, core',diff:2,
+ steps:['Stań; nogi na szerokość bioder; kij wzdłuż kręgosłupa (dotyka: głowy, Th i kości krzyżowej)','Pchnij biodra DO TYŁU — NIE kucaj (kolana nie wychodzą za palce)','Tułów pochyla się do przodu z neutral spine — 3 punkty kontaktu z kijem','Idź do 45–60° — poczujesz napięcie hamstrings','Napnij pośladki; wróć przez wyprost bioder (NIE kręgosłupa)'],
+ errors:['Garbienie pleców — kręgosłup w flexji zamiast neutral','Kucanie zamiast zawiasowania','Zbyt płytkie zawiasowanie — <45°'],
+ science:'Hip hinge — fundamentalny wzorzec motoryczny biegacza i podstawa RDL/deadlift. Prawidłowy wzorzec ↓ryzyko urazu hamstrings i L-spine. Schache et al., Clin Biomech 2012; Zemková, J Funct Morphol 2021.',
+ prog:{w1:'3×10 bez obciążenia (nauka wzorca z kijem)',w6:'3×12 z KB lub hantlami 5–10kg',w11:'3×12 single-leg RDL'}},
+
+// ── MOBILNOŚĆ (5) ────────────────────────────────────────────
+{id:'m1',name:'Hip Flexor Stretch',icon:'🧎',cat:'mobility',time:40,bilateral:true,sets:2,reps:null,
+ muscles:'Iliopsoas, rectus femoris, TFL (przy rotacji)',diff:1,
+ steps:['Klęk jednonóż: prawa noga z przodu (kolano 90°), lewa z tyłu','ADIM: wciągnij pępek, napnij pośladek tylnej nogi — neutralny kręgosłup','Przesuń biodra do przodu — poczujesz rozciąganie w pachwinie lewej nogi','Ręce na biodrach lub uniesione dla głębszego zakresu','Oddychaj; przy każdym wydechu delikatnie pogłębiaj pozycję','Zmień stronę'],
+ errors:['Przeprost lędźwi — biodra nie są podsunięte pod siebie','Brak ADIM — miednica przechyla się do przodu','Zbyt daleko wysunięte przednie kolano za stopę'],
+ science:'Napięty iliopsoas i rectus femoris → anterior pelvic tilt → ↑stress L-spine podczas biegu. Regularne rozciąganie przywraca prawidłową mechanikę biegu. Reiman et al., JOSPT 2009; Witvrouw et al., Am J Sports Med 2007.',
+ prog:{w1:'2×30s/stronę statycznie',w6:'2×45s + dociągnięcie ramienia w górę (Th mobilizacja)',w11:'2×60s + rotacja tułowia w stronę przedniej nogi'}},
+
+{id:'m2',name:'Pigeon Pose',icon:'🕊',cat:'mobility',time:50,bilateral:true,sets:1,reps:null,
+ muscles:'Piriformis, gemellus, obturator int./ext., GLmed/Gmin',diff:2,
+ steps:['Z czworonoga: przesuń prawą nogę do przodu (skośnie lub poziomo)','Tylna noga wyprostowana; miednica KWADRATOWA (oba kolce do przodu)','Stopniowo opuść tułów — ręce lub łokcie na podłodze','Przy każdym wydechu — świadome rozluźnienie pośladka','Utrzymaj 45–60s','Wersja na krześle: figura 4 w pozycji siedzącej'],
+ errors:['Miednica rotuje — tylne biodro unosi się → brak efektu','Ostry ból w kolanie — zmniejsz zakres (podpóra pod biodro)','Siłowe "dociskanie" zamiast relaksacji przy oddechu'],
+ science:'Pigeon pose rozciąga piriformis i głębokie rotatory zewnętrzne — ich napięcie = częsta przyczyna pseudorzedmy i bólu SI. Najskuteczniejszy stretch dla tej grupy. Van Dillen et al., PM&R 2000; Reiman et al. 2009.',
+ prog:{w1:'1×40s/stronę z podparciem (blok pod biodrem)',w6:'1×60s na łokciach',w11:'1×90s tułów wyprostowany lub skrętny wariant'}},
+
+{id:'m3',name:'90/90 Hip Mobility',icon:'🔄',cat:'mobility',time:null,bilateral:true,sets:2,reps:8,
+ muscles:'Rotatory wew. i zew. biodra, capsule stawu biodrowego',diff:2,
+ steps:['Usiądź: prawa noga z przodu (ER), lewa z tyłu (IR) — oba kolana 90°','Siedź prosto bez garbienia','Wersja statyczna: utrzymaj 30s na stronę','Wersja aktywna: unieś kolano przedniej nogi kilka cm (aktywna rotacja)','Zmień stronę; powtórz'],
+ errors:['Jedno biodro unosi się od podłogi — miednica nie siedzi symetrycznie','Garbienie pleców','Zbyt szybkie zmiany stron — każdą utrzymaj min. 5–10s'],
+ science:'90/90 poprawia zakres ER i IR biodra — deficyt IR silnie powiązany z ITBS i PFP. Cook, Movement 2010 — joint-by-joint theory. Reiman et al., IJSPT 2012.',
+ prog:{w1:'2×5 powt./stronę statycznie',w6:'2×8 z aktywnym uniesieniem kolana',w11:'2×10 dynamicznie z przesuwaniem ciężaru'}},
+
+{id:'m4',name:"World's Greatest Stretch",icon:'🌍',cat:'mobility',time:null,bilateral:true,sets:2,reps:5,
+ muscles:'Hip flexors, Th-spine rotation, hamstrings, piriformis',diff:2,
+ steps:['Zacznij w wykroku (lunge): prawa noga z przodu','Ręce po obu stronach prawej stopy (lub tylne kolano na ziemi)','Krok 1: opuść prawy łokieć do podłogi przy stopie — stretch biodra','Krok 2: podnieś się; obróć tułów w prawo — prawa ręka do sufitu','Naprzemiennie łokieć/rotacja × 5 powt.; zmień nogę'],
+ errors:['Kolano przedniej nogi opada do środka — zablokuj je na zewnątrz','Za mało rotacji Th — skupiasz się tylko na biodrach','Zbyt szybkie tempo — każda pozycja 2–3s'],
+ science:"World's greatest stretch mobilizuje jednocześnie: biodra, odcinek piersiowy i hamstringi. Rekomendowany w protokołach pre-run activation przez NSCA i EXOS. Clark et al., NASM 2014.",
+ prog:{w1:'2×3 kroki/stronę wolno',w6:'2×5 kroków/stronę',w11:'2×8 dynamicznie jako rozgrzewka'}},
+
+{id:'m5',name:'Calf Stretch',icon:'🦵',cat:'mobility',time:40,bilateral:true,sets:2,reps:null,
+ muscles:'Gastrocnemius (kolano proste), soleus (kolano ugięte), ścięgno Achillesa',diff:1,
+ steps:['GASTROCNEMIUS: stań przy ścianie; prawa noga z tyłu wyprostowana, pięta na ziemi','Noga prosta, pchaj się w ścianę — rozciąganie górnej łydki; 30–40s','SOLEUS: to samo, ale zegnij tylne kolano — rozciąganie niżej (soleus); 30–40s','Oba stretche na każdą stronę','Stopa prosta (nie pronacja) przez cały czas'],
+ errors:['Pięta tylnej nogi unosi się — brak efektu','Pronacja stopy do środka','Pomijanie soleus — często przeoczany a równie ważny'],
+ science:'Ograniczone zgięcie grzbietowe stopy → ↑ryzyko PFP, tendinopatii Achillesa i fasciitis plantaris. Każde 1° ↓dorsiflexji = ↑15% risk PFP. Radford et al., BJSM 2007; Bohm et al., J Exp Biol 2014.',
+ prog:{w1:'2×30s/stronę przy ścianie',w6:'2×40s + stopa na pochylni',w11:'2×45s + eccentric heel drops po stretchu'}},
+
+// ── BALANS (2) ───────────────────────────────────────────────
+{id:'b1',name:'Single Leg Balance',icon:'🧍',cat:'balance',time:30,bilateral:true,sets:3,reps:null,
+ muscles:'Peroneals, tibialis ant./post., GLmed, core',diff:1,
+ steps:['Stań na jednej nodze; kolano lekko ugięte (10–15°)','Wzrok utkwiony w jeden stały punkt przed sobą','Minimalne bujanie — mikrokorekty przez całą stopę','Postęp: oczy zamknięte, stojąc na macie, ruch rękami','Zmień stronę'],
+ errors:['Kolano zablokowane w hyperextension — brak pracy proprioceptywnej','Patrzenie w podłogę — ułatwia równowagę (input wzrokowy)','Trzymanie się ściany od razu'],
+ science:'Trening propriocepcji jednonożny ↓ryzyko skręcenia kostki o 47% u sportowców (RCT). Kluczowy dla stabilizacji kostka-kolano podczas fazy lotu biegu. Verhagen et al., BJSM 2004; McGuine et al., Am J Sports Med 2006.',
+ prog:{w1:'3×20s oczy otwarte',w6:'3×30s oczy zamknięte',w11:'3×30s na macie piankowej'}},
+
+{id:'b2',name:'Y-Balance Training',icon:'⭐',cat:'balance',time:null,bilateral:true,sets:2,reps:5,
+ muscles:'Głęboka stabilizacja nogi stojącej, biodro, core, propriocepcja',diff:3,
+ steps:['Stań na jednej nodze; wolna noga ugięta w kolanie','3 kierunki sięgnięcia: ANTERIOR (do przodu), POSTEROMEDIAL (tył-wewnątrz), POSTEROLATERAL (tył-zewnątrz)','Sięgnij wolną stopą — delikatne dotknięcie podłogi i wróć do pozycji','NIE przenoś ciężaru na sięgającą nogę','5× każdy kierunek; zmień nogę'],
+ errors:['Opieranie się na sięgającej nodze — to chód, nie balans','Rotacja tułowia przy sięganiu — neutralizuj aktywacją core','Brak powrotu do pozycji wyjściowej między powt.'],
+ science:'Y-Balance Test — najsilniejszy predyktor kontuzji kończyny dolnej (AUC 0.74–0.87). Asymetria >4 cm między stronami = ↑ryzyko kontuzji. Plisky et al., J North Am Sports Phys Ther 2009; Butler et al., J Strength Cond Res 2012.',
+ prog:{w1:'Nie dotyczy (faza 2+)',w6:'2×5 sięgnięć/kierunek/noga z dotknięciem',w11:'2×8 sięgnięć dynamicznie bez dotknięcia'}}
+];
+
+// ═══════════════════════════════════════════════════════════════
+// SESSION TEMPLATES — 9 ćwiczeń na fazę
+// ═══════════════════════════════════════════════════════════════
+const SESSIONS = {
+  baza: {
+    focus:'Nauka wzorców ruchowych, aktywacja głęboka, prewencja bazowa',
+    ids:[
+      {id:'r6', note:'Rolling stopy — fundament każdego treningu biegowego'},
+      {id:'r1', note:'Rolling łydek — prewencja fasciitis i tendinopatii'},
+      {id:'r2', note:'Rolling IT band — prewencja ITBS'},
+      {id:'s1', note:'Oddech przeponowy — aktywacja TrA'},
+      {id:'p1', note:'Glute Bridge + ADIM — aktywacja GM'},
+      {id:'h1', note:'Clamshell — izolacja GLmed'},
+      {id:'m1', note:'Hip flexor stretch — otwieranie biodra'},
+      {id:'m5', note:'Calf stretch — Achilles i powięź'},
+      {id:'b1', note:'Single leg balance — propriocepcja'}
+    ]
+  },
+  budowanie: {
+    focus:'Siła unilateralna, wzorzec zawiasowania, mobilność aktywna',
+    ids:[
+      {id:'r4', note:'Rolling piriformis — głębokie rotatory'},
+      {id:'r3', note:'Rolling czworogłowego'},
+      {id:'s2', note:'Dead bug — anty-ekstensja'},
+      {id:'p5', note:'Single-leg Glute Bridge — siła unilateralna'},
+      {id:'h4', note:'Monster walk — GLmed w zamkniętym łańcuchu'},
+      {id:'p2', note:'Bird dog — kontrola miednicy'},
+      {id:'m4', note:"World's greatest — mobilność wieloplanowa"},
+      {id:'m2', note:'Pigeon pose — piriformis i rotatory'},
+      {id:'b1', note:'Single leg balance — oczy zamknięte'}
+    ]
+  },
+  szczyt: {
+    focus:'Siła funkcjonalna, antyrotacja, propriocepcja zaawansowana',
+    ids:[
+      {id:'r2', note:'Rolling IT band + TFL'},
+      {id:'r4', note:'Rolling piriformis'},
+      {id:'s4', note:'Side plank — GLmed i QL'},
+      {id:'p4', note:'Pallof press — antyrotacja'},
+      {id:'h3', note:'Standing hip abduction z taśmą'},
+      {id:'p3', note:'Superman hold — łańcuch tylny'},
+      {id:'m3', note:'90/90 hip — aktywna mobilność'},
+      {id:'b2', note:'Y-Balance — dynamiczna propriocepcja'},
+      {id:'h5', note:'Hip hinge z obciążeniem'}
+    ]
+  },
+  utrzymanie: {
+    focus:'Utrzymanie formy, regeneracja, zmniejszone obciążenie',
+    ids:[
+      {id:'r5', note:'Rolling klatki piersiowej — odcinek Th'},
+      {id:'r1', note:'Rolling łydek'},
+      {id:'s3', note:'Plank — utrzymanie core'},
+      {id:'p1', note:'Glute bridge z pełną kontrolą'},
+      {id:'h1', note:'Clamshell z taśmą'},
+      {id:'m1', note:'Hip flexor stretch'},
+      {id:'m2', note:'Pigeon pose'},
+      {id:'m5', note:'Calf stretch'},
+      {id:'b1', note:'Single leg balance'}
+    ]
+  }
+};
 </script>
 </body>
 </html>
