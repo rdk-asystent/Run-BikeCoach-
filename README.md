@@ -15,11 +15,11 @@ Progressive Web App (PWA) działająca offline, bez backendu, bez instalacji.
 └─────────────────────────────────────────────────────┘
 
   📊 PRZEGLĄD     CTL/ATL/TSB · rekomendacja dziś · strefy HR
-  📅 PLAN         18-tygodniowy plan biegowy · postęp sesji
+  📅 PLAN         20-tygodniowy plan bieg+rower+drążki · postęp sesji
   📈 FORMA        PMC Chart 90 dni · historia treningów
   🎯 PREDYKCJE    Riegel formula · prognozy 5K–maraton
   🏆 REKORDY      PR życiowe · historia drążków
-  💆 MOBILNOŚĆ    28 ćwiczeń EBM · timer · 18-tyg. progresja
+  💆 MOBILNOŚĆ    28 ćwiczeń EBM · timer · 20-tyg. progresja
 ```
 
 ---
@@ -31,7 +31,7 @@ Progressive Web App (PWA) działająca offline, bez backendu, bez instalacji.
 - **Strefy tętna Karvonen** — auto-kalkulacja Z1–Z5 z RHR i maxHR
 - **TSS** — Training Stress Score kalkulowany z HR lub RPE
 - **Rekomendacja dzienna** — na podstawie TSB sugeruje typ treningu
-- **Plan 18 tygodni** — Baza → Budowanie → Szczyt → Utrzymanie
+- **Plan 20 tygodni** — Baza → Budowanie → Szczyt → Utrzymanie
 - **Predykcje Riegel** — 5K, 10K, półmaraton, maraton
 - **Eksport/Import** JSON i CSV
 
@@ -39,7 +39,7 @@ Progressive Web App (PWA) działająca offline, bez backendu, bez instalacji.
 - **28 ćwiczeń EBM** z bazą naukową (PubMed refs)
 - **6 kategorii**: Rolling, Głęboka stabilizacja, L-Miedniczna, Biodro-Siła, Mobilność, Balans
 - **Timer bilateral** — automatyczne przełączanie stron z beepem (Web Audio API)
-- **18-tygodniowa progresja** (L1 tyg.1–6, L2 tyg.7–12, L3 tyg.13–18)
+- **20-tygodniowa progresja** (L1 tyg.1–6, L2 tyg.7–12, L3 tyg.13–20)
 - **Sesja dzienna** — 9 ćwiczeń dopasowanych do fazy planu
 - **Streak i statystyki** ukończonych sesji
 

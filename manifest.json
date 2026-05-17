@@ -1,7 +1,7 @@
 {
   "name": "RUN/RIDE/COACH",
   "short_name": "RunCoach",
-  "description": "Osobisty asystent biegacza — PMC, plan treningowy, mobilność EBM",
+  "description": "Osobisty asystent treningowy — bieg, rower, drążki · PMC, plan 20 tygodni, mobilność EBM",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
