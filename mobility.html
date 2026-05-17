@@ -461,6 +461,586 @@ const SESSIONS = {
     ]
   }
 };
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let currentTab = 'session';
+let currentWeek = 1;
+let filterCat = 'ALL';
+let completedToday = {};     // {id: true}
+let history = {};            // {'2026-05-05': {id: true, ...}}
+let mobDb = null;
+let timerInterval = null;
+let timerRunning = false;
+let timerSecs = 0;
+let modalExId = null;
+let repCount = 0;
+let currentSet = 1;
+let totalSets = 1;
+
+// ═══════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════
+const today = () => new Date().toISOString().split('T')[0];
+const exById = id => EX.find(e => e.id === id);
+const catColor = cat => (CATS[cat] || {color:'#888'}).color;
+const catLabel = cat => (CATS[cat] || {label:cat}).label;
+
+function getPhase(w) {
+  if (w <= 5)  return 'baza';
+  if (w <= 10) return 'budowanie';
+  if (w <= 15) return 'szczyt';
+  return 'utrzymanie';
+}
+function phaseLabel(p) {
+  return {baza:'BAZA',budowanie:'BUDOWANIE',szczyt:'SZCZYT',utrzymanie:'UTRZYMANIE'}[p]||p;
+}
+function phaseColor(p) {
+  return {baza:'#22d3ee',budowanie:'#a3e635',szczyt:'#fbbf24',utrzymanie:'#fb923c'}[p]||'#888';
+}
+function getProgLevel(w) {
+  if (w <= 6)  return 1;
+  if (w <= 12) return 2;
+  return 3;
+}
+function durText(ex) {
+  if (ex.time) return ex.bilateral ? `${ex.time}s/str.` : `${ex.time}s`;
+  return `${ex.reps} powt × ${ex.sets} serie`;
+}
+function calcCurrentWeek() {
+  const start = new Date(PROGRAM_START);
+  const now   = new Date();
+  const diff  = Math.floor((now - start) / (7 * 24 * 60 * 60 * 1000));
+  return Math.min(Math.max(diff + 1, 1), 18);
+}
+function getSessionExercises() {
+  const phase = getPhase(currentWeek);
+  const tmpl  = SESSIONS[phase];
+  return tmpl.ids.map(s => {
+    const ex = exById(s.id);
+    return ex ? { ...ex, note: s.note } : null;
+  }).filter(Boolean);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INDEXEDDB
+// ═══════════════════════════════════════════════════════════════
+function initDB() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('mobility-coach-v1', 1);
+    r.onupgradeneeded = e => e.target.result.createObjectStore('kv');
+    r.onsuccess = e => { mobDb = e.target.result; res(); };
+    r.onerror   = e => rej(e.target.error);
+  });
+}
+function dbGet(k) {
+  return new Promise((res, rej) => {
+    const r = mobDb.transaction('kv','readonly').objectStore('kv').get(k);
+    r.onsuccess = () => res(r.result);
+    r.onerror   = () => rej(r.error);
+  });
+}
+function dbSet(k, v) {
+  return new Promise((res, rej) => {
+    const r = mobDb.transaction('kv','readwrite').objectStore('kv').put(v, k);
+    r.onsuccess = () => res();
+    r.onerror   = () => rej(r.error);
+  });
+}
+function saveHistory() { dbSet('history', history); }
+
+// ═══════════════════════════════════════════════════════════════
+// TAB ROUTING
+// ═══════════════════════════════════════════════════════════════
+function setTab(t) {
+  currentTab = t;
+  document.querySelectorAll('.tab').forEach(el => {
+    el.classList.toggle('active', el.textContent.toLowerCase().startsWith(t === 'session' ? 'se' : t === 'library' ? 'bi' : 'po'));
+  });
+  render();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER — DISPATCH
+// ═══════════════════════════════════════════════════════════════
+function render() {
+  const phase = getPhase(currentWeek);
+  document.getElementById('sub').textContent =
+    `Tyg. ${currentWeek} · ${phaseLabel(phase)} · L${getProgLevel(currentWeek)}`;
+  const c = document.getElementById('content');
+  if (currentTab === 'session')  c.innerHTML = renderSession();
+  else if (currentTab === 'library') c.innerHTML = renderLibrary();
+  else c.innerHTML = renderProgress();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER — SESSION TAB
+// ═══════════════════════════════════════════════════════════════
+function renderSession() {
+  const phase = getPhase(currentWeek);
+  const tmpl  = SESSIONS[phase];
+  const exList = getSessionExercises();
+  const todayH = history[today()] || {};
+  const done   = exList.filter(e => todayH[e.id]).length;
+  const pct    = exList.length ? Math.round(done / exList.length * 100) : 0;
+
+  let estMin = 0;
+  exList.forEach(e => {
+    if (e.time) estMin += (e.time * (e.sets || 1) + 30 * ((e.sets || 1) - 1)) / 60;
+    else        estMin += (e.reps * 3.5 * (e.sets || 1) + 45 * ((e.sets || 1) - 1)) / 60;
+  });
+
+  let html = `
+  <div class="wnav">
+    <div class="wn-inf">
+      <div class="wn-l">Tydzień planu</div>
+      <div class="wn-row">
+        <div class="wn-v">TYG ${currentWeek}</div>
+        <div class="wn-p" style="background:${phaseColor(phase)}22;color:${phaseColor(phase)}">${phaseLabel(phase)}</div>
+      </div>
+    </div>
+    <button class="wbtn" onclick="chgWeek(-1)">◀</button>
+    <button class="wbtn" onclick="chgWeek(1)">▶</button>
+  </div>
+
+  <div class="pbanner">
+    <div class="pb-l">Cel fazy</div>
+    <div class="pb-t">${tmpl.focus}</div>
+  </div>
+
+  <div class="sess-hdr">
+    <div class="sh-top">
+      <div class="sh-title">${phaseLabel(phase)} — Sesja dzienna</div>
+      <div class="sh-meta">~${Math.round(estMin)} min</div>
+    </div>
+    <div class="sh-bar"><div class="sh-fill" style="width:${pct}%"></div></div>
+    <div class="sh-stats">${done}/${exList.length} ćwiczeń ukończone · ${pct}%</div>
+  </div>
+
+  <div class="card" style="padding:0">`;
+
+  exList.forEach(e => {
+    const isDone = !!todayH[e.id];
+    html += `
+    <div class="sess-item" onclick="openExercise('${e.id}')">
+      <div class="si-dot" style="background:${catColor(e.cat)}"></div>
+      <div class="si-body">
+        <div class="si-name" style="${isDone ? 'color:var(--m);text-decoration:line-through' : ''}">${e.icon} ${e.name}</div>
+        <div class="si-note">${e.note}</div>
+      </div>
+      <div class="si-dur">${durText(e)}</div>
+      <button class="si-ck${isDone ? ' done' : ''}" onclick="event.stopPropagation();toggleDone('${e.id}')">${isDone ? '✓' : ''}</button>
+    </div>`;
+  });
+
+  html += `</div>
+  <div style="font-size:9px;color:var(--m);text-align:center;margin-top:8px;line-height:1.7">
+    Kolejność: Rolling → Stabilizacja głęboka → Siła → Mobilność<br>
+    Tapnij ćwiczenie → technika, EBM i timer
+  </div>`;
+
+  if (done === exList.length && exList.length > 0) {
+    html += `<div style="margin-top:12px;padding:13px;background:rgba(163,230,53,.1);border:1px solid rgba(163,230,53,.3);border-radius:2px;text-align:center">
+      <div class="df" style="font-size:1.2rem;color:var(--lime)">SESJA UKOŃCZONA ✓</div>
+      <div style="font-size:10px;color:var(--m2);margin-top:4px">Nieźle. Jutro znowu.</div>
+    </div>`;
+  }
+
+  return html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER — LIBRARY TAB
+// ═══════════════════════════════════════════════════════════════
+function renderLibrary() {
+  const cats = ['ALL', ...Object.keys(CATS)];
+  const filtered = filterCat === 'ALL' ? EX : EX.filter(e => e.cat === filterCat);
+  const progLevel = getProgLevel(currentWeek);
+  const allDone = Object.values(history).reduce((s, h) => ({ ...s, ...h }), {});
+
+  let html = '<div class="frow">';
+  cats.forEach(c => {
+    const label = c === 'ALL' ? 'Wszystkie' : catLabel(c);
+    html += `<button class="fp${filterCat === c ? ' on' : ''}" onclick="setFilter('${c}')">${label}</button>`;
+  });
+  html += '</div>';
+
+  filtered.forEach(ex => {
+    const everDone = !!allDone[ex.id];
+    const todayDone = !!(history[today()] || {})[ex.id];
+    html += `
+    <div class="excard">
+      <div class="ex-h" onclick="toggleExCard('${ex.id}')">
+        <div class="ex-ico">${ex.icon}</div>
+        <div class="ex-inf">
+          <div class="ex-nm">${ex.name}</div>
+          <div class="ex-mt">
+            <span class="cpill" style="background:${catColor(ex.cat)}22;color:${catColor(ex.cat)}">${catLabel(ex.cat)}</span>
+            <span>${durText(ex)}</span>
+            <span style="color:var(--m)">${'★'.repeat(ex.diff)}${'☆'.repeat(3-ex.diff)}</span>
+            ${everDone ? '<span style="color:var(--lime)">✓ wykonane</span>' : ''}
+          </div>
+        </div>
+        <button class="ex-ck${todayDone ? ' done' : ''}" onclick="event.stopPropagation();toggleDone('${ex.id}')">${todayDone ? '✓' : ''}</button>
+      </div>
+      <div class="ex-body" id="exb-${ex.id}">
+        <div class="sec">
+          <div class="sec-t">Mięśnie</div>
+          <div style="font-size:11px;color:var(--m2)">${ex.muscles}</div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">Technika krok po kroku</div>
+          <ol class="steps">${ex.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+        </div>
+        <div class="sec">
+          <div class="sec-t">Najczęstsze błędy</div>
+          <ul class="errs">${ex.errors.map(e => `<li>${e}</li>`).join('')}</ul>
+        </div>
+        <div class="ebm">
+          <div class="ebm-l">📚 Podstawy naukowe (EBM)</div>
+          <div class="ebm-t">${ex.science}</div>
+        </div>
+        <div class="sec" style="margin-top:12px">
+          <div class="sec-t">Progresja 18 tygodni</div>
+          <div class="prog-grid">
+            <div class="prog-c${progLevel === 1 ? ' cur' : ''}">
+              <div class="prog-lbl">L1 · Tyg 1–6</div>
+              <div class="prog-v">${ex.prog.w1}</div>
+            </div>
+            <div class="prog-c${progLevel === 2 ? ' cur' : ''}">
+              <div class="prog-lbl">L2 · Tyg 7–12</div>
+              <div class="prog-v">${ex.prog.w6}</div>
+            </div>
+            <div class="prog-c${progLevel === 3 ? ' cur' : ''}">
+              <div class="prog-lbl">L3 · Tyg 13–18</div>
+              <div class="prog-v">${ex.prog.w11}</div>
+            </div>
+          </div>
+        </div>
+        <button class="run-btn" onclick="openExercise('${ex.id}')">▶ Uruchom z timerem</button>
+      </div>
+    </div>`;
+  });
+  return html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER — PROGRESS TAB
+// ═══════════════════════════════════════════════════════════════
+function renderProgress() {
+  const allDays = Object.keys(history).sort();
+  const totalSess = allDays.filter(d => Object.keys(history[d]).length > 0).length;
+  const totalEx   = Object.values(history).reduce((s, h) => s + Object.keys(h).length, 0);
+  const streak    = calcStreak();
+
+  // last 7 days bar chart
+  const last7 = Array.from({length:7}, (_, i) => {
+    const d = new Date(); d.setDate(d.getDate() - (6 - i));
+    const k = d.toISOString().split('T')[0];
+    return { k, count: Object.keys(history[k] || {}).length,
+             isToday: k === today(),
+             label: d.toLocaleDateString('pl-PL',{weekday:'short'}).slice(0,2) };
+  });
+  const maxCount = Math.max(...last7.map(d => d.count), 1);
+
+  // Category breakdown
+  const catCounts = {};
+  Object.values(history).forEach(h => {
+    Object.keys(h).forEach(id => {
+      const ex = exById(id); if (!ex) return;
+      catCounts[ex.cat] = (catCounts[ex.cat] || 0) + 1;
+    });
+  });
+
+  let html = `
+  <div class="g2">
+    <div class="stat"><div class="stat-l">Sesji ukończonych</div><div class="stat-v" style="color:var(--lime)">${totalSess}</div></div>
+    <div class="stat"><div class="stat-l">Ćwiczeń łącznie</div><div class="stat-v">${totalEx}</div></div>
+    <div class="stat"><div class="stat-l">Streak (dni)</div><div class="stat-v" style="color:var(--amber)">${streak}</div></div>
+    <div class="stat"><div class="stat-l">Poziom progresji</div><div class="stat-v" style="color:${phaseColor(getPhase(currentWeek))};font-size:1.3rem">L${getProgLevel(currentWeek)}</div></div>
+  </div>
+
+  <div class="card">
+    <div class="cl">Aktywność — ostatnie 7 dni</div>
+    <div class="bars7">`;
+
+  last7.forEach(d => {
+    const h = Math.max(4, Math.round((d.count / maxCount) * 50));
+    html += `
+      <div class="bar7-wrap">
+        <div class="bar7" style="height:${h}px;background:${d.isToday ? 'var(--lime)' : d.count > 0 ? 'var(--b2)' : 'var(--b)'}"></div>
+        <div class="bar7-lbl">${d.label}</div>
+      </div>`;
+  });
+  html += `</div></div>`;
+
+  if (Object.keys(catCounts).length) {
+    html += `<div class="card"><div class="cl">Rozkład kategorii</div>`;
+    Object.entries(catCounts).sort((a,b) => b[1]-a[1]).forEach(([cat, n]) => {
+      const pct = totalEx ? Math.round(n / totalEx * 100) : 0;
+      html += `
+      <div class="catbar">
+        <div class="catbar-hdr"><span style="color:${catColor(cat)}">${catLabel(cat)}</span><span style="color:var(--m2)">${n}×</span></div>
+        <div class="catbar-bg"><div class="catbar-fill" style="width:${pct}%;background:${catColor(cat)}"></div></div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `
+  <div class="card">
+    <div class="cl">Dlaczego ten protokół — EBM</div>
+    <div style="font-size:11px;color:var(--m2);line-height:1.8">
+      <div style="margin-bottom:7px"><span style="color:var(--cyan)">ROLLING</span> — FR ↓DOMS i ↑ROM bez utraty siły. Behm 2011, Pearcey 2015.</div>
+      <div style="margin-bottom:7px"><span style="color:var(--purple)">GŁĘBOKA STAB.</span> — TrA aktywuje się anticipatoryjnie PRZED ruchem. Hodges & Richardson 1997.</div>
+      <div style="margin-bottom:7px"><span style="color:var(--amber)">L-MIEDNICZNA</span> — Glute bridge + ADIM ↑GM o 25%. Moon 2014.</div>
+      <div style="margin-bottom:7px"><span style="color:var(--orange)">BIODRO-SIŁA</span> — GLmed: prewencja ITBS (−47%) i PFP. Distefano 2009, Boren 2011.</div>
+      <div style="margin-bottom:7px"><span style="color:var(--green)">MOBILNOŚĆ</span> — Deficyt IR biodra → ITBS. Calf stretch 2×/dzień → prewencja fasciitis. Radford 2007.</div>
+      <div><span style="color:var(--cyan)">BALANS</span> — Propriocepcja jednonożna ↓ryzyko kontuzji kostki o 47%. Verhagen 2004.</div>
+    </div>
+  </div>`;
+
+  return html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXERCISE MODAL + TIMER
+// ═══════════════════════════════════════════════════════════════
+function openExercise(id) {
+  const ex = exById(id); if (!ex) return;
+  modalExId = id; repCount = 0; currentSet = 1; totalSets = ex.sets || 1;
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; timerRunning = false; }
+
+  document.getElementById('mTitle').textContent = ex.name;
+  document.getElementById('mSub').textContent = ex.muscles;
+
+  let body = '';
+
+  // Steps (mini list)
+  body += `<ul class="mod-steps">${ex.steps.map(s => `<li>${s}</li>`).join('')}</ul>`;
+
+  // Timer or reps
+  if (ex.time) {
+    timerSecs = ex.time;
+    const sideLabel = ex.bilateral ? 'LEWA STRONA' : '';
+    body += `
+    <div class="t-display">
+      <div class="t-val" id="tVal">${fmtTimer(ex.time)}</div>
+      ${ex.bilateral ? `<div class="t-side" id="tSide">${sideLabel}</div>` : ''}
+      <div class="t-lbl" id="tLbl">${ex.sets > 1 ? `${ex.sets} serie` : 'czas'}</div>
+    </div>
+    <div class="set-row" id="setRow">${renderDots(ex.sets)}</div>
+    <div class="t-btns">
+      <button class="tbtn primary" id="tStart" onclick="startTimer()">▶ START</button>
+      <button class="tbtn" onclick="skipTimer()">POMIŃ</button>
+    </div>`;
+  } else {
+    body += `
+    <div class="rep-ctrl">
+      <button class="rbtn" onclick="chgRep(-1)">−</button>
+      <div>
+        <div class="rval" id="rVal">${repCount}</div>
+        <div class="rlbl">Powtórzenia</div>
+      </div>
+      <button class="rbtn" onclick="chgRep(1)">+</button>
+    </div>
+    <div style="text-align:center;font-size:9px;color:var(--m2)">Cel: ${ex.reps} powt × ${ex.sets} serie · przerwa 45–60s</div>
+    <div class="set-row" id="setRow">${renderDots(ex.sets)}</div>`;
+  }
+
+  // EBM
+  body += `<div class="ebm" style="margin-top:12px"><div class="ebm-l">📚 EBM</div><div class="ebm-t">${ex.science}</div></div>`;
+
+  // Progression current level
+  const lv = getProgLevel(currentWeek);
+  const progVal = lv === 1 ? ex.prog.w1 : lv === 2 ? ex.prog.w6 : ex.prog.w11;
+  body += `<div style="margin-top:10px;font-size:10px;color:var(--lime)">L${lv} · Tyg ${lv===1?'1–6':lv===2?'7–12':'13–18'}: ${progVal}</div>`;
+
+  document.getElementById('mBody').innerHTML = body;
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function renderDots(n) {
+  return Array.from({length: n}, (_, i) =>
+    `<div class="sdot${i === 0 ? ' cur' : ''}" id="dot${i}"></div>`
+  ).join('');
+}
+
+function fmtTimer(s) {
+  const m = Math.floor(s / 60), ss = s % 60;
+  return `${m}:${ss.toString().padStart(2, '0')}`;
+}
+
+function beep(freq = 880, dur = 0.15) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(0.25, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    o.start(ctx.currentTime); o.stop(ctx.currentTime + dur);
+  } catch(e) {}
+}
+
+function startTimer() {
+  if (timerRunning) {
+    clearInterval(timerInterval); timerRunning = false;
+    const btn = document.getElementById('tStart');
+    if (btn) btn.textContent = '▶ START';
+    return;
+  }
+  const ex = exById(modalExId); if (!ex) return;
+  timerRunning = true;
+  const btn = document.getElementById('tStart');
+  if (btn) btn.textContent = '⏸ PAUZA';
+
+  let side = 1; // 1 = left/single, 2 = right
+  let secs = ex.time;
+
+  timerInterval = setInterval(() => {
+    secs--;
+    const v = document.getElementById('tVal');
+    if (v) v.textContent = fmtTimer(secs);
+    if (secs <= 3 && secs > 0) beep(660, 0.1);
+    if (secs <= 0) {
+      beep(880, 0.2); setTimeout(() => beep(880, 0.2), 250);
+      if (ex.bilateral && side === 1) {
+        // switch to right side
+        side = 2; secs = ex.time;
+        const sl = document.getElementById('tSide');
+        if (sl) { sl.textContent = 'PRAWA STRONA'; sl.style.color = 'var(--rose)'; }
+        const lbl = document.getElementById('tLbl'); if (lbl) lbl.textContent = 'zmień stronę';
+      } else {
+        // set done
+        clearInterval(timerInterval); timerRunning = false;
+        const dot = document.getElementById(`dot${currentSet - 1}`);
+        if (dot) { dot.classList.remove('cur'); dot.classList.add('done'); }
+        if (currentSet < totalSets) {
+          currentSet++;
+          const nextDot = document.getElementById(`dot${currentSet - 1}`);
+          if (nextDot) nextDot.classList.add('cur');
+          secs = 30;
+          const lbl = document.getElementById('tLbl'); if (lbl) lbl.textContent = 'ODPOCZYNEK';
+          if (v) v.textContent = fmtTimer(secs);
+          side = 1;
+          // rest countdown
+          timerInterval = setInterval(() => {
+            secs--;
+            const v2 = document.getElementById('tVal'); if (v2) v2.textContent = fmtTimer(secs);
+            if (secs <= 0) {
+              clearInterval(timerInterval); timerRunning = false;
+              const lbl2 = document.getElementById('tLbl'); if (lbl2) lbl2.textContent = 'czas';
+              const v3 = document.getElementById('tVal'); if (v3) v3.textContent = fmtTimer(ex.time);
+              const b = document.getElementById('tStart'); if (b) b.textContent = '▶ START';
+              const sl2 = document.getElementById('tSide'); if (sl2) { sl2.textContent = 'LEWA STRONA'; sl2.style.color = 'var(--amber)'; }
+            }
+          }, 1000);
+          const b = document.getElementById('tStart'); if (b) b.textContent = '▶ START';
+          return;
+        } else {
+          const v2 = document.getElementById('tVal'); if (v2) v2.textContent = '✓';
+          const lbl = document.getElementById('tLbl'); if (lbl) lbl.textContent = 'UKOŃCZONO';
+          const b = document.getElementById('tStart'); if (b) b.textContent = '▶ START';
+        }
+      }
+    }
+  }, 1000);
+}
+
+function skipTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerRunning = false; }
+  const v = document.getElementById('tVal'); if (v) v.textContent = '✓';
+}
+
+function chgRep(d) {
+  repCount = Math.max(0, repCount + d);
+  const rv = document.getElementById('rVal'); if (rv) rv.textContent = repCount;
+  const ex = exById(modalExId);
+  if (ex && repCount >= ex.reps && currentSet < totalSets) {
+    currentSet++;
+    const dots = document.querySelectorAll('#setRow .sdot');
+    dots.forEach((dot, i) => { dot.className = 'sdot' + (i < currentSet-1 ? ' done' : i === currentSet-1 ? ' cur' : ''); });
+    repCount = 0; if (rv) rv.textContent = 0;
+  }
+}
+
+function markDone() {
+  if (modalExId) {
+    const d = today();
+    if (!history[d]) history[d] = {};
+    history[d][modalExId] = true;
+    completedToday[modalExId] = true;
+    saveHistory();
+  }
+  closeModal();
+  render();
+}
+
+function closeModal() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; timerRunning = false; }
+  document.getElementById('modal').style.display = 'none';
+}
+
+function onOverlayClick(e) {
+  if (e.target === document.getElementById('modal')) closeModal();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════════════
+function toggleDone(id) {
+  const d = today();
+  if (!history[d]) history[d] = {};
+  if (history[d][id]) {
+    delete history[d][id];
+    delete completedToday[id];
+  } else {
+    history[d][id] = true;
+    completedToday[id] = true;
+  }
+  saveHistory(); render();
+}
+
+function toggleExCard(id) {
+  const b = document.getElementById(`exb-${id}`);
+  if (b) b.classList.toggle('open');
+}
+
+function setFilter(c) { filterCat = c; render(); }
+
+function chgWeek(d) {
+  currentWeek = Math.min(18, Math.max(1, currentWeek + d));
+  dbSet('week', currentWeek);
+  render();
+}
+
+function calcStreak() {
+  let streak = 0, d = new Date();
+  for (let i = 0; i < 365; i++) {
+    const k = d.toISOString().split('T')[0];
+    const h = history[k] || {};
+    if (Object.keys(h).length > 0) streak++;
+    else if (i > 0) break;
+    d.setDate(d.getDate() - 1);
+  }
+  return streak;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+async function init() {
+  await initDB();
+  const [wk, hist] = await Promise.all([dbGet('week'), dbGet('history')]);
+  currentWeek = wk || calcCurrentWeek();
+  history = hist || {};
+  const th = history[today()] || {};
+  Object.keys(th).forEach(id => { completedToday[id] = true; });
+  render();
+}
+init();
 </script>
 </body>
 </html>
