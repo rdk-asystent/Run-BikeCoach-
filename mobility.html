@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MOBILNOŚĆ">
+<title>MOBILNOŚĆ &amp; SIŁA — RUN/RIDE/COACH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000;--bg2:#0a0a0a;--bg3:#111;--b:#1e1e1e;--b2:#2a2a2a;
+  --t:#f0f0f0;--m:#555;--m2:#888;
+  --lime:#a3e635;--cyan:#22d3ee;--rose:#fb7185;--amber:#fbbf24;
+  --orange:#fb923c;--red:#ef4444;--green:#4ade80;--purple:#a78bfa;
+  --safe:env(safe-area-inset-bottom,0px);
+  --top:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--t);font-family:'JetBrains Mono',monospace;font-size:13px;overflow:hidden}
+.df{font-family:'Bebas Neue',sans-serif;letter-spacing:.05em}
+#app{display:flex;flex-direction:column;height:100%;height:100dvh}
+#hdr{padding:calc(var(--top) + 10px) 14px 0;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--bg)}
+.htop{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.logo{font-size:1.5rem;line-height:1}
+.logo .sl{color:var(--lime)}.logo .sc{color:var(--purple)}
+.sub{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--m);margin-top:1px}
+.back{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--m);text-decoration:none;border:1px solid var(--b2);padding:5px 9px;border-radius:2px}
+#tabs{display:flex;border-bottom:1px solid var(--b);overflow-x:auto;scrollbar-width:none}
+#tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:10px 14px 8px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:transparent;color:var(--m);border:none;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit;transition:all .15s}
+.tab.active{color:var(--lime);border-bottom-color:var(--lime)}
+#content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 14px calc(12px + var(--safe))}
+/* cards */
+.card{background:var(--bg3);border:1px solid var(--b);padding:13px;margin-bottom:9px;border-radius:2px}
+.cl{font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--m);margin-bottom:7px}
+/* week nav */
+.wnav{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--b);padding:10px 13px;border-radius:2px;margin-bottom:9px}
+.wn-inf{flex:1}
+.wn-l{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--m)}
+.wn-row{display:flex;align-items:center;gap:8px;margin-top:2px}
+.wn-v{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--lime)}
+.wn-p{font-size:8px;padding:2px 7px;border-radius:2px}
+.wbtn{background:transparent;border:1px solid var(--b2);color:var(--m2);padding:6px 10px;cursor:pointer;font-family:inherit;font-size:12px;border-radius:2px}
+.wbtn:active{border-color:var(--lime);color:var(--lime)}
+/* phase banner */
+.pbanner{border-left:3px solid var(--lime);padding:9px 13px;background:rgba(163,230,53,.04);margin-bottom:9px;border-radius:0 2px 2px 0}
+.pb-l{font-size:8px;text-transform:uppercase;letter-spacing:.2em;color:var(--lime);margin-bottom:2px}
+.pb-t{font-size:11px;color:var(--m2);line-height:1.6}
+/* session */
+.sess-hdr{background:rgba(163,230,53,.07);border:1px solid rgba(163,230,53,.2);padding:12px 13px;margin-bottom:9px;border-radius:2px}
+.sh-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.sh-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem}
+.sh-meta{font-size:9px;color:var(--m2)}
+.sh-bar{height:3px;background:var(--b);border-radius:2px;overflow:hidden;margin-bottom:5px}
+.sh-fill{height:100%;background:var(--lime);border-radius:2px;transition:width .3s}
+.sh-stats{font-size:9px;color:var(--m2)}
+.sess-item{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--b);cursor:pointer}
+.sess-item:last-child{border-bottom:none}
+.si-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.si-body{flex:1;min-width:0}
+.si-name{font-size:11px;font-weight:600}
+.si-note{font-size:9px;color:var(--m2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.si-dur{font-size:9px;color:var(--m2);flex-shrink:0}
+.si-ck{width:22px;height:22px;border-radius:50%;border:1px solid var(--b2);background:transparent;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s}
+.si-ck.done{background:var(--lime);border-color:var(--lime);color:#000}
+/* library */
+.frow{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.fp{font-size:9px;padding:4px 8px;border:1px solid var(--b);background:transparent;color:var(--m2);cursor:pointer;font-family:inherit;text-transform:uppercase;letter-spacing:.08em;border-radius:2px;transition:all .15s;white-space:nowrap}
+.fp.on{background:var(--bg3);color:var(--t);border-color:var(--b2)}
+.excard{border:1px solid var(--b);margin-bottom:8px;border-radius:2px;overflow:hidden}
+.ex-h{padding:11px 13px;display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--bg3)}
+.ex-ico{font-size:1.2rem;flex-shrink:0;width:28px;text-align:center}
+.ex-inf{flex:1;min-width:0}
+.ex-nm{font-size:11px;font-weight:700;margin-bottom:2px}
+.ex-mt{font-size:9px;color:var(--m2);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.cpill{font-size:8px;padding:1px 5px;border-radius:2px;flex-shrink:0}
+.ex-ck{width:22px;height:22px;border-radius:50%;border:1px solid var(--b2);background:transparent;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s}
+.ex-ck.done{background:var(--lime);border-color:var(--lime);color:#000}
+.ex-body{display:none;border-top:1px solid var(--b);padding:13px}
+.ex-body.open{display:block}
+.sec{margin-bottom:12px}
+.sec-t{font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--m);margin-bottom:6px;padding-left:8px;border-left:2px solid var(--lime)}
+ol.steps{list-style:none;counter-reset:s;padding:0}
+ol.steps li{counter-increment:s;font-size:11px;color:var(--m2);line-height:1.7;padding:2px 0 2px 22px;position:relative}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:4px;width:15px;height:15px;border-radius:50%;background:var(--b2);color:var(--lime);font-size:8px;display:flex;align-items:center;justify-content:center;font-weight:700}
+ul.errs{list-style:none;padding:0}
+ul.errs li{font-size:11px;color:var(--m2);line-height:1.7;padding:2px 0 2px 16px;position:relative}
+ul.errs li::before{content:'✗';position:absolute;left:0;color:var(--red);font-size:10px;top:3px}
+.ebm{background:rgba(163,230,53,.05);border:1px solid rgba(163,230,53,.15);padding:10px 11px;border-radius:2px;margin-top:8px}
+.ebm-l{font-size:8px;text-transform:uppercase;letter-spacing:.15em;color:var(--lime);margin-bottom:3px}
+.ebm-t{font-size:10px;color:var(--m2);line-height:1.6}
+.prog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}
+.prog-c{border:1px solid var(--b2);padding:7px;border-radius:2px;text-align:center}
+.prog-c.cur{border-color:var(--lime);background:rgba(163,230,53,.06)}
+.prog-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:var(--m);margin-bottom:3px}
+.prog-v{font-size:10px;color:var(--m2)}
+.prog-c.cur .prog-v{color:var(--lime)}
+.run-btn{width:100%;background:var(--lime);color:#000;border:none;padding:11px;font-family:inherit;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;border-radius:2px;margin-top:10px}
+/* progress */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px}
+.stat{background:var(--bg3);border:1px solid var(--b);padding:12px;border-radius:2px}
+.stat-l{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--m);margin-bottom:4px}
+.stat-v{font-size:1.8rem;font-weight:300;font-variant-numeric:tabular-nums}
+.bars7{display:flex;gap:5px;align-items:flex-end;height:56px;margin-top:6px}
+.bar7-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.bar7{width:100%;border-radius:2px;min-height:4px}
+.bar7-lbl{font-size:8px;color:var(--m)}
+.catbar{margin-bottom:8px}
+.catbar-hdr{display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px}
+.catbar-bg{height:3px;background:var(--b);border-radius:2px}
+.catbar-fill{height:100%;border-radius:2px}
+/* timer modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:100;display:flex;align-items:flex-end}
+.tmod{background:#0d0d0d;border-top:1px solid var(--b);width:100%;max-height:90dvh;overflow-y:auto;padding:18px 16px calc(18px + var(--safe));border-radius:12px 12px 0 0}
+.tm-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;margin-bottom:2px}
+.tm-sub{font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--m);margin-bottom:14px}
+.t-display{text-align:center;padding:14px 0}
+.t-val{font-family:'Bebas Neue',sans-serif;font-size:5rem;color:var(--lime);line-height:1}
+.t-side{font-size:12px;text-transform:uppercase;letter-spacing:.15em;color:var(--amber);margin-top:4px}
+.t-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.2em;color:var(--m);margin-top:2px}
+.t-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.tbtn{padding:10px 18px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;font-family:inherit;border-radius:2px;border:1px solid var(--b2);background:transparent;color:var(--m2)}
+.tbtn.primary{background:var(--lime);color:#000;border-color:var(--lime);font-weight:700}
+.tbtn:active{opacity:.7}
+.set-row{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.sdot{width:10px;height:10px;border-radius:50%;border:1px solid var(--b2)}
+.sdot.done{background:var(--lime);border-color:var(--lime)}
+.sdot.cur{border-color:var(--lime)}
+.rep-ctrl{display:flex;align-items:center;justify-content:center;gap:16px;margin:14px 0}
+.rbtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--b2);background:transparent;cursor:pointer;font-size:20px;color:var(--t);display:flex;align-items:center;justify-content:center}
+.rval{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--lime);min-width:50px;text-align:center}
+.rlbl{font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:var(--m);text-align:center}
+.mod-steps{font-size:11px;color:var(--m2);line-height:1.7;margin:10px 0}
+.mod-steps li{padding:2px 0 2px 18px;position:relative}
+.mod-steps li::before{content:'→';position:absolute;left:0;color:var(--lime)}
+.done-bar{display:flex;gap:8px;margin-top:14px}
+.done-bar .tbtn{flex:1}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hdr">
+    <div class="htop">
+      <div>
+        <div class="logo df">MOB<span class="sl">/</span>SIŁ<span class="sc">/</span>EBM</div>
+        <div class="sub" id="sub">Ładowanie…</div>
+      </div>
+      <a href="run&bikecoach.html" class="back">← COACH</a>
+    </div>
+    <div id="tabs">
+      <button class="tab active" onclick="setTab('session')">Sesja</button>
+      <button class="tab" onclick="setTab('library')">Biblioteka</button>
+      <button class="tab" onclick="setTab('progress')">Postęp</button>
+    </div>
+  </div>
+  <div id="content"></div>
+</div>
+
+<!-- Timer / Exercise Modal -->
+<div class="overlay" id="modal" style="display:none" onclick="onOverlayClick(event)">
+  <div class="tmod">
+    <div class="tm-title" id="mTitle">Ćwiczenie</div>
+    <div class="tm-sub" id="mSub">Mięśnie</div>
+    <div id="mBody"></div>
+    <div class="done-bar">
+      <button class="tbtn primary" onclick="markDone()">✓ Zaliczone</button>
+      <button class="tbtn" onclick="closeModal()">Zamknij</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════
+const PROGRAM_START = '2026-05-05';
+const PHASES = {
+  baza:       { weeks:[1,5],  color:'#22d3ee', label:'BAZA' },
+  budowanie:  { weeks:[6,10], color:'#a3e635', label:'BUDOWANIE' },
+  szczyt:     { weeks:[11,15],color:'#fbbf24', label:'SZCZYT' },
+  utrzymanie: { weeks:[16,18],color:'#fb923c', label:'UTRZYMANIE' }
+};
+const CATS = {
+  rolling:     { label:'ROLLING',       color:'#22d3ee' },
+  core:        { label:'GŁĘBOKA STAB.', color:'#a78bfa' },
+  lumbopelvic: { label:'L-MIEDNICZNA',  color:'#fbbf24' },
+  hip:         { label:'BIODRO-SIŁA',   color:'#fb923c' },
+  mobility:    { label:'MOBILNOŚĆ',     color:'#4ade80' },
+  balance:     { label:'BALANS',        color:'#22d3ee' }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// EXERCISE DATABASE — 28 ćwiczeń, EBM
+// ═══════════════════════════════════════════════════════════════
+const EX = [
+// ── ROLLING (6) ─────────────────────────────────────────────
+{id:'r1',name:'Rolling łydek',icon:'🦵',cat:'rolling',time:60,bilateral:true,sets:1,reps:null,
+ muscles:'Gastrocnemius, soleus, powięź podeszwowa',diff:1,
+ steps:['Usiądź, wałek pod łydką jednej nogi; ręce za plecami jako podpora','Unieś biodra — przenieś ciężar na łydkę','Roluj od ścięgna Achillesa do dołu podkolanowego, 2–3 cm/sek','Na tkliwym punkcie zatrzymaj się i wykonaj 5–8 zgięć grzbietowych stopy','Powtórz na drugą stronę'],
+ errors:['Zbyt szybkie tempo (>3 cm/sek) — brak efektu na mechanoreceptory','Omijanie bolesnych punktów — właśnie tam należy się zatrzymać','Rolowanie bezpośrednio na kostce lub stawie kolanowym'],
+ science:'Foam rolling ↓DOMS i ↑ROM bez utraty siły. Mechanizm: modulacja mechanoreceptorów Ruffini/Merkel, ↑perfuzja. Behm & Chaouachi, BJSM 2011 — FR zwiększa ROM; Pearcey et al., J Athl Train 2015 — FR redukuje DOMS 24–72h po wysiłku.',
+ prog:{w1:'30s/stronę, wolne tempo',w6:'60s + 8 zgięć grzbietowych w każdym punkcie',w11:'90s + zgięcie kolana podczas rolowania (rozwarcie powięzi)'}},
+
+{id:'r2',name:'Rolling pasma IT',icon:'🦵',cat:'rolling',time:60,bilateral:true,sets:1,reps:null,
+ muscles:'Tensor fasciae latae, pasmo IT, vastus lateralis',diff:2,
+ steps:['Połóż się bokiem; wałek pod zewnętrzną stroną uda','Górna noga ugięta i stopą na podłodze dla stabilizacji','Roluj powoli od biodra do 3–4 cm nad kolanem (NIE na kolanie)','Na tkliwym punkcie zatrzymaj i delikatnie rotuj udo do przodu/tyłu','Zmień stronę'],
+ errors:['Rollowanie bezpośrednio na stawie kolanowym — ryzyko urazu','Zbyt szybkie tempo bez zatrzymań','Brak rotacji uda w tkliwych miejscach'],
+ science:'ITBS to 2. najczęstsza kontuzja biegaczy (12% urazów). Rolling TFL w kombinacji ze wzmacnianiem abduktorów biodra redukuje ból i ↑zakres rotacji. Mucha et al., IJSPT 2017; Kaplan 2015 — epidemiologia ITBS.',
+ prog:{w1:'60s/stronę','w6':'90s + rotacje uda','w11':'2 min + targetowanie punktów spustowych (30s zatrzymanie)'}},
+
+{id:'r3',name:'Rolling czworogłowego',icon:'🦵',cat:'rolling',time:60,bilateral:true,sets:1,reps:null,
+ muscles:'Rectus femoris, vastus medialis/lateralis/intermedius',diff:1,
+ steps:['Połóż się na brzuchu; wałek pod przednią stroną uda (powyżej kolana)','Przenieś ciężar na uda i przedramiona','Roluj od kolana do bioder (NIE na staw biodrowy)','Szczególna uwaga na rectus femoris — centralnie','Na tkliwych miejscach zatrzymaj się i czekaj na rozluźnienie'],
+ errors:['Rollowanie bezpośrednio na rzepce','Ignorowanie środkowej części uda (rectus femoris najczęściej napięty)','Zbyt duży nacisk na początku — zacznij łagodnie'],
+ science:'FR czworogłowych ↓siłowy deficyt po treningu i ↓DOMS. Napięty rectus femoris → ↑siły kompresyjne w stawie rzepkowo-udowym → PFP. Healey et al., J Strength Cond Res 2014; Pearcey et al. 2015.',
+ prog:{w1:'60s/stronę',w6:'90s + zgięcie kolana na końcu',w11:'2 min + statyczne rozciąganie po rollingu'}},
+
+{id:'r4',name:'Rolling piriformis',icon:'🍑',cat:'rolling',time:60,bilateral:true,sets:1,reps:null,
+ muscles:'Gluteus maximus, piriformis, głębokie rotatory zewnętrzne',diff:2,
+ steps:['Usiądź na wałku; skrzyżuj prawą kostkę na lewym kolanie (figura 4)','Lekko pochyl się w stronę prawego pośladka — przenieś ciężar','Szukaj tkliwych punktów powoli przesuwając ciężar','Na bolesnym miejscu zatrzymaj się 20–30s','Zmień stronę'],
+ errors:['Siedzi prosto — bez pochylenia: nie trafia w piriformis','Za mały nacisk — noga nie jest skrzyżowana','Rollowanie na kości ogonowej lub kręgosłupie'],
+ science:'Piriformis syndrome — ucisk n. kulszowego przez m. gruszkowaty (6–8% bólów pośladkowych). Rolling ↓napięcie i ↑ruchomość stawu biodrowego. Tonley et al., JOSPT 2010; Cheatham et al., IJSPT 2015.',
+ prog:{w1:'45s/stronę z podparciem obu rąk',w6:'60s z jedną ręką (↑nacisk)',w11:'Piłka lacrosse zamiast wałka (↑precyzja)'}},
+
+{id:'r5',name:'Rolling klatki piersiowej',icon:'🔙',cat:'rolling',time:60,bilateral:false,sets:1,reps:null,
+ muscles:'Erector spinae Th, rhomboids, trapezius środkowy',diff:1,
+ steps:['Usiądź przed wałkiem; połóż go poziomo pod łopatkami (Th4–Th8)','Ręce splecione za głową; oprzyj się na wałku','Na każdym segmencie delikatnie wyprostuj się (extension) przez 5 oddechów','Przesuń wałek o 3–4 cm ku górze i powtórz segment po segmencie','NIE rollujesz odcinka lędźwiowego'],
+ errors:['Rollowanie L-spine — ryzyko nadmiernej lordozy','Przeprost szyi — głowa powinna być wsparta dłońmi','Zbyt szybkie tempo bez zatrzymań segmentowych'],
+ science:'Mobilność Th bezpośrednio wpływa na ekonomię biegu i mechanikę oddechową. Sztywność odcinka piersiowego → kompensacja lędźwiowa → ↑ryzyko LBP. Masaeli et al., J Bodyw Mov Ther 2020.',
+ prog:{w1:'5 segmentów × 5 oddechów',w6:'+uniesienie rąk w górę w każdym segmencie',w11:'+rotacja tułowia w każdym segmencie'}},
+
+{id:'r6',name:'Rolling podeszwy stopy',icon:'🦶',cat:'rolling',time:45,bilateral:true,sets:1,reps:null,
+ muscles:'Rozcięgno podeszwowe, flexor digitorum brevis, plantaris',diff:1,
+ steps:['Stań boso; piłka lacrosse/tenisowa pod stopą','Roluj od pięty do śródstopia (NIE na palce)','Trzy linie: środkowa, przyśrodkowa, boczna','Na tkliwych punktach zatrzymaj się z lekkim naciskiem 20–30s','Możesz wykonać siedząc dla mniejszego nacisku na początku'],
+ errors:['Zbyt duży nacisk od razu przy fasciopatii plantarnej','Rollowanie bezpośrednio na kości piętowej (ostry ból = sygnał stop)','Pomijanie łuku przyśrodkowego'],
+ science:'Rolling podeszwy ↓ból w fasciitis plantaris i ↑propriocepcję stopy. Kage et al., JOSPT 2020 — skuteczniejszy niż samo statyczne rozciąganie powięzi w redukcji bólu krótkoterminowo.',
+ prog:{w1:'30s/stopę siedząc',w6:'45s stojąc (↑nacisk)',w11:'60s stojąc + drążenie palców po'}},
+
+// ── GŁĘBOKA STABILIZACJA (5) ─────────────────────────────────
+{id:'s1',name:'Oddech przeponowy',icon:'🫁',cat:'core',time:null,bilateral:false,sets:2,reps:10,
+ muscles:'Przepona, transversus abdominis, dno miednicy, multifidus',diff:1,
+ steps:['Połóż się na plecach; kolana ugięte, stopy na podłodze','Jedną rękę na klatce, drugą na brzuchu','Wdech przez nos 4 sek — brzuch unosi się, klatka minimalna','Wydech przez usta 6 sek — brzuch opada, delikatne napięcie poniżej pępka','Poczuj 360° rozszerzenie (przód/tył/boki) — to "cylindr stabilizacyjny"','2 serie po 10 oddechów'],
+ errors:['Klatka unosi się zamiast brzucha — oddychanie szczytowe','Aktywne wciąganie brzucha zamiast naturalnego napięcia przy wydechu','Wstrzymywanie oddechu'],
+ science:'Przepona — kluczowy stabilizator kręgosłupa. Hodges & Richardson, Spine 1997: TrA aktywuje się anticipatoryjnie PRZED ruchem kończyn (feedforward). Dysfunkcja oddechu → ↓stabilizacja centralna. Kolar et al., JOSPT 2010 — DNS methodology.',
+ prog:{w1:'2×10 oddechów leżąc — nauka wzorca',w6:'2×10 siedząc (↑wymagania posturalne)',w11:'Integracja: oddech przeponowy podczas dead-bug i plank'}},
+
+{id:'s2',name:'Dead Bug',icon:'🐛',cat:'core',time:null,bilateral:true,sets:3,reps:8,
+ muscles:'Transversus abdominis, rectus abdominis, multifidus, erector spinae',diff:2,
+ steps:['Leż na plecach; dolne plecy PRZYLEGAJĄ do podłogi — flat back','Ramiona pionowo, kolana 90° w powietrzu','Wdech; WYDECH — aktywuj TrA (delikatne napięcie pod pępkiem)','Opuść JEDNOCZEŚNIE prawą rękę w tył i lewą nogę w dół','Kończyny prawie dotykają podłogi; plecy NIE odrywają się','Wróć i powtórz na drugą stronę'],
+ errors:['Oderwanie dolnych pleców — STOP, zmniejsz zakres ruchu','Wstrzymywanie oddechu podczas ruchu','Arm + noga tej samej strony (powinny być naprzemienne)'],
+ science:'Dead bug aktywuje TrA (56% MVIC) i RA (45% MVIC) przy siłach L4/L5 <2500N — bezpieczny nawet przy dyskopatiach. Escamilla et al., Med Sci Sports Exerc 2010; McGill, Low Back Disorders 2007.',
+ prog:{w1:'3×5/stronę — tylko noga lub tylko ramię',w6:'3×8/stronę — ramię + przeciwna noga',w11:'3×10/stronę + taśma oporowa na stopach'}},
+
+{id:'s3',name:'Plank',icon:'🏋',cat:'core',time:30,bilateral:false,sets:3,reps:null,
+ muscles:'Transversus abdominis, obliqui, gluteus maximus, erector spinae',diff:2,
+ steps:['Podpór na przedramionach; łokcie pod barkami','Ciało w jednej linii: stopy–kostki–kolana–biodra–ramiona–głowa','Delikatne napięcie pośladków i brzucha przez cały czas','Oddychaj spokojnie — oddech przeponowy','Nie dopuść do unoszenia ani opadania bioder'],
+ errors:['Biodra za wysokie (namiot) lub za niskie (przeprost lędźwi)','Wstrzymywanie oddechu — mięśnie nie pracują w pełni','Głowa wysunięta do przodu lub zwieszona'],
+ science:'Plank aktywuje TrA i multifidus bardziej niż sit-upy, przy znacznie niższych siłach ścinających na dyski L4/L5. McGill, J Biomech 1997; Endleman & Critchley, PT 2008 — EMG analysis.',
+ prog:{w1:'3×20s',w6:'3×40s',w11:'3×60s lub plank z uniesieniem kończyny'}},
+
+{id:'s4',name:'Side Plank',icon:'⬛',cat:'core',time:25,bilateral:true,sets:3,reps:null,
+ muscles:'Gluteus medius, obliquus ext./int., quadratus lumborum',diff:2,
+ steps:['Połóż się bokiem; łokieć pod ramieniem','Stopy jedna na drugiej lub staggered (lekko rozsunięte)','Unieś biodra — ciało w prostej linii od stóp do głowy','Górna ręka na biodrze lub uniesiona pionowo','Oddychaj; utrzymaj napięcie pośladka górnej nogi','Opcja: unieś górną nogę 10 cm'],
+ errors:['Opadanie bioder — brak aktywacji GLmed/QL','Rotacja tułowia do przodu lub tyłu','Opieranie całego ciężaru na kostce bocznej'],
+ science:'Side plank aktywuje gluteus medius (73% MVIC) i quadratus lumborum (38% MVIC). GLmed jest kluczowy dla stabilizacji miednicy podczas fazy podporu w biegu — jego słabość → Trendelenburg → ITBS i PFP. Boren et al., IJSPT 2011; Ekstrom et al., JOSPT 2007.',
+ prog:{w1:'3×20s/stronę',w6:'3×30s/stronę',w11:'3×45s + opcja z uniesieniem nogi'}},
+
+{id:'s5',name:'Hollow Body Hold',icon:'🍌',cat:'core',time:20,bilateral:false,sets:3,reps:null,
+ muscles:'Transversus abdominis, rectus abdominis, hip flexors',diff:3,
+ steps:['Leż na plecach; wyciśnij L-kręgosłup do podłogi (pelvic tilt posterior)','Ramiona wyciągnięte nad głowę','Unieś ramiona, głowę/bark i nogi 15 cm od podłogi','Dolne plecy CAŁY CZAS w kontakcie z podłogą','Utrzymaj i oddychaj płytko','Modyfikacja: kolana ugięte (łatwiej)'],
+ errors:['Oderwanie dolnych pleców — zmniejsz uniesienie nóg','Wstrzymywanie oddechu','Nogi zbyt wysoko — redukuje obciążenie anty-ekstensji'],
+ science:'Hollow body — fundament gimnastyczny anty-ekstensji. Aktywacja TrA + RA w zamkniętym łańcuchu kluczowa dla transferu sił w biegu. Hibbs et al., Sports Med 2008 — core stability i wyniki sportowe.',
+ prog:{w1:'3×10s kolana ugięte',w6:'3×20s nogi proste na 45°',w11:'3×30s nogi nisko (15 cm) + ramiona w górze'}},
+
+// ── L-MIEDNICZNA (5) ─────────────────────────────────────────
+{id:'p1',name:'Glute Bridge + ADIM',icon:'🍑',cat:'lumbopelvic',time:null,bilateral:false,sets:3,reps:12,
+ muscles:'Gluteus maximus, hamstrings, TrA (ADIM), multifidus',diff:1,
+ steps:['Leż na plecach; kolana ~90°, stopy na szerokość bioder','ADIM: wydech — delikatnie wciągnij pępek (aktywacja TrA)','Utrzymując ADIM — napnij pośladki i unieś biodra','Na górze: linia ramiona–biodra–kolana; ściśnij pośladki 2s','Powoli opuść; ADIM aktywne przez cały czas'],
+ errors:['Użycie hamstrings zamiast GM — czujesz z tyłu uda? Błąd','Hyperextension lędźwi na szczycie — biodra za wysoko','Brak ADIM — TrA nie aktywowany'],
+ science:'Glute bridge + ADIM ↑aktywację GM o 25% vs samo GB. Moon et al., J Phys Ther Sci 2014. GM — kluczowy w propulsji biegu i absorbcji sił lądowania. Comerford & Mottram, Man Ther 2001.',
+ prog:{w1:'3×10 dwunożnie, 2s hold',w6:'3×15 z 3s hold + marsz nóg',w11:'Single-leg GB (p5)'}},
+
+{id:'p2',name:'Bird Dog',icon:'🐦',cat:'lumbopelvic',time:null,bilateral:true,sets:3,reps:8,
+ muscles:'Multifidus, erector spinae, gluteus maximus, TrA',diff:2,
+ steps:['Czworonóg: nadgarstki pod barkami, kolana pod biodrami','Aktywuj TrA (delikatne napięcie) PRZED ruchem','Jednocześnie wyciągnij prawą rękę i lewą nogę do linii tułowia','Miednica POZIOMA — wyobraź sobie szklankę wody na plecach','Utrzymaj 3–5s; powróć kontrolowanie','Powtórz na drugą stronę'],
+ errors:['Rotacja miednicy — najczęstszy błąd: biodro unosi się w górę','Uniesienie nogi za wysoko → przeprost lędźwi','Zbyt szybkie tempo — kontrola > prędkość'],
+ science:'Bird dog aktywuje multifidus (52% MVIC) i TrA przy siłach L5 <600N. Najlepsza izolacja multifidusa przy minimalnym obciążeniu. McGill, Low Back Disorders 2007; Czaprowski et al. 2014.',
+ prog:{w1:'3×5/stronę z 3s hold',w6:'3×8/stronę z 5s hold',w11:'3×10 standing bird dog (trudniejszy wariant)'}},
+
+{id:'p3',name:'Superman Hold',icon:'🦸',cat:'lumbopelvic',time:null,bilateral:false,sets:3,reps:10,
+ muscles:'Erector spinae (bilateral), multifidus, gluteus maximus, rhomboids',diff:2,
+ steps:['Leż na brzuchu; ręce wyciągnięte nad głową, czoło na podłodze','Napnij pośladki; jednocześnie unieś obydwie ręce i nogi ~15 cm','Głowa w przedłużeniu kręgosłupa — wzrok w dół','Utrzymaj 3–5s; oddychaj','Powoli opuść; lekka przerwa','Wersja lekka: tylko ręce lub tylko nogi naprzemiennie'],
+ errors:['Hyperextension szyi — głowa za wysoko','Rotacja tułowia przy unoszeniu','Wstrzymywanie oddechu >5s'],
+ science:'Superman aktywuje erector spinae bilateralnie i GM w łańcuchu tylnym. Kluczowy dla siły łańcucha tylnego w bieganiu. Kuo et al., J Phys Ther Sci 2013.',
+ prog:{w1:'3×8 z 2s hold',w6:'3×10 z 3–5s hold',w11:'3×12 z obciążnikami na nadgarstkach/kostkach'}},
+
+{id:'p4',name:'Pallof Press',icon:'🏹',cat:'lumbopelvic',time:null,bilateral:true,sets:3,reps:10,
+ muscles:'Obliqui, TrA, GLmed — ćwiczenie anty-rotacyjne',diff:3,
+ steps:['Stań bokiem do punktu zaczepu taśmy (na wysokości klatki)','Chwyć taśmę obydwiema rękami przy klatce piersiowej','Aktywuj core — neutralny kręgosłup','Wypchnij ręce wyprostowane przed siebie — tułów NIE rotuje ani o milimetr','Utrzymaj 2s; wróć do klatki; powtórz','Zmień stronę'],
+ errors:['Rotacja tułowia podczas wypchnięcia — dyskwalifikuje ćwiczenie','Za mocna taśma na początku','Nogi za szeroko lub za wąsko'],
+ science:'Pallof press — anty-rotacja aktywuje obliqui zewnętrzny i wewnętrzny w funkcjonalnym wzorcu przenoszenia sił między półkulami ciała podczas biegu. Kibler et al. 2006; Abt et al., Med Sci Sports Exerc 2007.',
+ prog:{w1:'3×8/stronę stojąc (lekka taśma)',w6:'3×10 mocniejsza taśma',w11:'3×12 w pozycji wypadu (lunge)'}},
+
+{id:'p5',name:'Single-Leg Glute Bridge',icon:'🍑',cat:'lumbopelvic',time:null,bilateral:true,sets:3,reps:8,
+ muscles:'Gluteus maximus (unilateral), hamstrings, GLmed (stabilizacja)',diff:3,
+ steps:['Leż na plecach; prawa noga ugięta 90°, lewa wyprostowana w powietrzu','Aktywuj GM prawej nogi; ADIM','Unieś biodra do pełnej linii — miednica POZIOMA','Utrzymaj 2–3s — miednica nie opada na bok uniesionej nogi','Powoli opuść; nie kładź bioder w całości między powt.','Zmień stronę'],
+ errors:['Opadanie miednicy na stronę wolnej nogi (Trendelenburg) — to słabość GLmed','Użycie hamstrings zamiast GM','Hyperextension lędźwi na szczycie'],
+ science:'Single-leg GB ↑obciążenie GM i wymaga stabilizacji GLmed dla poziomej miednicy. Dystefano et al., JOSPT 2009; Buckthorpe et al., BJSM 2019 — kluczowy protokół przy PFP i ITBS.',
+ prog:{w1:'3×6/stronę z 2s hold',w6:'3×10/stronę z 3s hold',w11:'3×12/stronę + marsz nóg na szczycie'}},
+
+// ── BIODRO-SIŁA (5) ──────────────────────────────────────────
+{id:'h1',name:'Clamshell',icon:'🦀',cat:'hip',time:null,bilateral:true,sets:3,reps:15,
+ muscles:'Gluteus medius, gluteus minimus, piriformis, rotatory zewnętrzne',diff:1,
+ steps:['Leż bokiem; kolana ugięte 45°, biodra ugięte ~60°, stopy razem','Górna ręka na biodrze — kontroluj rotację miednicy','Otwórz górne kolano jak muszlę — tylko do poziomu biodra','Miednica NIE rotuje do tyłu — to najważniejsza wskazówka','Zatrzymaj 2s na górze; powoli opuść','Opcja: taśma oporowa tuż powyżej kolan'],
+ errors:['Rotacja miednicy do tyłu zamiast prawdziwej abdukcji — sprawdź ręką','Zbyt duże uniesienie nogi (>poziom biodra) → TFL dominuje','Brak kontroli przy powrocie — ekscentryka tak samo ważna'],
+ science:'Clamshell aktywuje selektywnie GLmed (81% MVIC) przy minimalnej aktywacji TFL. Z taśmą +35% aktywacji. Kluczowy w prewencji ITBS i PFP u biegaczy. Distefano et al., JOSPT 2009; Boren et al., IJSPT 2011.',
+ prog:{w1:'3×12/stronę bez taśmy',w6:'3×15 z lekką taśmą',w11:'3×20 z mocną taśmą + 2s hold'}},
+
+{id:'h2',name:'Hip Abduction leżąc',icon:'🦵',cat:'hip',time:null,bilateral:true,sets:3,reps:15,
+ muscles:'Gluteus medius posterior, gluteus minimus',diff:1,
+ steps:['Leż bokiem; nogi wyprostowane, dolna ręka pod głową','Górna noga prosto; delikatnie rotuj ją w dół (rotacja wewnętrzna) — izolacja GLmed posterior','Unieś górną nogę 30–40° (nie więcej)','Zatrzymaj 1–2s; powoli opuść','Kontrolowana faza ekscentryczna — nie upuszczaj'],
+ errors:['Rotacja zewnętrzna ("palce do sufitu") — przesuwa aktywację na TFL','Zbyt wysokie uniesienie >40° — TFL przejmuje pracę','Brak kontroli przy powrocie'],
+ science:'Abdukcja z rotacją wewnętrzną selektywnie aktywuje posterior GLmed (78% MVIC) — krytyczny dla redukcji knee valgus podczas biegu. Selkowitz et al., JOSPT 2013.',
+ prog:{w1:'3×12/stronę',w6:'3×15 + 2s hold',w11:'3×20 z taśmą oporową'}},
+
+{id:'h3',name:'Standing Hip Abduction',icon:'🧍',cat:'hip',time:null,bilateral:true,sets:3,reps:12,
+ muscles:'Gluteus medius, gluteus minimus, TrA (stabilizacja nogi stojącej)',diff:2,
+ steps:['Stań prosto; jedna ręka na ścianie dla lekkiego podparcia','Unieś jedną nogę w bok (abdukcja) 30–40°; kolano lekko ugięte','Noga stojąca lekko ugięta — to też ćwiczenie posturalne','Powoli powróć — pełna kontrola do końca','Opcja: taśma oporowa przy kostkach','Zmień stronę'],
+ errors:['Pochylanie tułowia w stronę uniesionej nogi — kompensacja słabości GLmed','Huśtanie impulsem zamiast kontrolowanego ruchu','Wyprostowane kolano stojącej nogi'],
+ science:'Stojąca wersja abdukcji angażuje core i stabilizatory postawy jednocześnie z GLmed (~65% MVIC) — bardziej funkcjonalna niż leżąca. Reiman et al., J Athl Train 2012.',
+ prog:{w1:'3×10 bez taśmy, z podparciem',w6:'3×12 z lekką taśmą',w11:'3×15 taśma + bez podparcia + wolne tempo 3s'}},
+
+{id:'h4',name:'Monster Walk',icon:'🚶',cat:'hip',time:null,bilateral:false,sets:3,reps:12,
+ muscles:'Gluteus medius, gluteus minimus, rotatory zewnętrzne — oba biodra',diff:2,
+ steps:['Taśma oporowa powyżej kolan lub na kostkach (trudniej)','Mini-squat: ugięcie 20–30°; plecy proste, kolana nad palcami','Kroky bokiem: krok prawą → krok lewą (utrzymuj napięcie taśmy)','10–12 kroków w prawo; 10–12 kroków z powrotem','Kolana nie składają się do środka — walczysz z taśmą'],
+ errors:['Kolana składają się do środka — taśma za mocna','Wyprostowanie bioder i kolan między krokami','Pochylanie tułowia na boki przy każdym kroku'],
+ science:'Monster walk aktywuje GLmed (64% MVIC) i Gmin w zamkniętym łańcuchu. Symuluje obciążenie w biegu. Distefano et al., JOSPT 2009 — jeden z najwyższych wskaźników aktywacji GLmed.',
+ prog:{w1:'2×8 kroków/stronę taśma na udach',w6:'3×10 kroków/stronę taśma na kostkach',w11:'3×15 kroków + głębszy squat'}},
+
+{id:'h5',name:'Hip Hinge',icon:'🏗',cat:'hip',time:null,bilateral:false,sets:3,reps:10,
+ muscles:'Gluteus maximus, hamstrings, erector spinae, core',diff:2,
+ steps:['Stań; nogi na szerokość bioder; kij wzdłuż kręgosłupa (dotyka: głowy, Th i kości krzyżowej)','Pchnij biodra DO TYŁU — NIE kucaj (kolana nie wychodzą za palce)','Tułów pochyla się do przodu z neutral spine — 3 punkty kontaktu z kijem','Idź do 45–60° — poczujesz napięcie hamstrings','Napnij pośladki; wróć przez wyprost bioder (NIE kręgosłupa)'],
+ errors:['Garbienie pleców — kręgosłup w flexji zamiast neutral','Kucanie zamiast zawiasowania','Zbyt płytkie zawiasowanie — <45°'],
+ science:'Hip hinge — fundamentalny wzorzec motoryczny biegacza i podstawa RDL/deadlift. Prawidłowy wzorzec ↓ryzyko urazu hamstrings i L-spine. Schache et al., Clin Biomech 2012; Zemková, J Funct Morphol 2021.',
+ prog:{w1:'3×10 bez obciążenia (nauka wzorca z kijem)',w6:'3×12 z KB lub hantlami 5–10kg',w11:'3×12 single-leg RDL'}},
+
+// ── MOBILNOŚĆ (5) ────────────────────────────────────────────
+{id:'m1',name:'Hip Flexor Stretch',icon:'🧎',cat:'mobility',time:40,bilateral:true,sets:2,reps:null,
+ muscles:'Iliopsoas, rectus femoris, TFL (przy rotacji)',diff:1,
+ steps:['Klęk jednonóż: prawa noga z przodu (kolano 90°), lewa z tyłu','ADIM: wciągnij pępek, napnij pośladek tylnej nogi — neutralny kręgosłup','Przesuń biodra do przodu — poczujesz rozciąganie w pachwinie lewej nogi','Ręce na biodrach lub uniesione dla głębszego zakresu','Oddychaj; przy każdym wydechu delikatnie pogłębiaj pozycję','Zmień stronę'],
+ errors:['Przeprost lędźwi — biodra nie są podsunięte pod siebie','Brak ADIM — miednica przechyla się do przodu','Zbyt daleko wysunięte przednie kolano za stopę'],
+ science:'Napięty iliopsoas i rectus femoris → anterior pelvic tilt → ↑stress L-spine podczas biegu. Regularne rozciąganie przywraca prawidłową mechanikę biegu. Reiman et al., JOSPT 2009; Witvrouw et al., Am J Sports Med 2007.',
+ prog:{w1:'2×30s/stronę statycznie',w6:'2×45s + dociągnięcie ramienia w górę (Th mobilizacja)',w11:'2×60s + rotacja tułowia w stronę przedniej nogi'}},
+
+{id:'m2',name:'Pigeon Pose',icon:'🕊',cat:'mobility',time:50,bilateral:true,sets:1,reps:null,
+ muscles:'Piriformis, gemellus, obturator int./ext., GLmed/Gmin',diff:2,
+ steps:['Z czworonoga: przesuń prawą nogę do przodu (skośnie lub poziomo)','Tylna noga wyprostowana; miednica KWADRATOWA (oba kolce do przodu)','Stopniowo opuść tułów — ręce lub łokcie na podłodze','Przy każdym wydechu — świadome rozluźnienie pośladka','Utrzymaj 45–60s','Wersja na krześle: figura 4 w pozycji siedzącej'],
+ errors:['Miednica rotuje — tylne biodro unosi się → brak efektu','Ostry ból w kolanie — zmniejsz zakres (podpóra pod biodro)','Siłowe "dociskanie" zamiast relaksacji przy oddechu'],
+ science:'Pigeon pose rozciąga piriformis i głębokie rotatory zewnętrzne — ich napięcie = częsta przyczyna pseudorzedmy i bólu SI. Najskuteczniejszy stretch dla tej grupy. Van Dillen et al., PM&R 2000; Reiman et al. 2009.',
+ prog:{w1:'1×40s/stronę z podparciem (blok pod biodrem)',w6:'1×60s na łokciach',w11:'1×90s tułów wyprostowany lub skrętny wariant'}},
+
+{id:'m3',name:'90/90 Hip Mobility',icon:'🔄',cat:'mobility',time:null,bilateral:true,sets:2,reps:8,
+ muscles:'Rotatory wew. i zew. biodra, capsule stawu biodrowego',diff:2,
+ steps:['Usiądź: prawa noga z przodu (ER), lewa z tyłu (IR) — oba kolana 90°','Siedź prosto bez garbienia','Wersja statyczna: utrzymaj 30s na stronę','Wersja aktywna: unieś kolano przedniej nogi kilka cm (aktywna rotacja)','Zmień stronę; powtórz'],
+ errors:['Jedno biodro unosi się od podłogi — miednica nie siedzi symetrycznie','Garbienie pleców','Zbyt szybkie zmiany stron — każdą utrzymaj min. 5–10s'],
+ science:'90/90 poprawia zakres ER i IR biodra — deficyt IR silnie powiązany z ITBS i PFP. Cook, Movement 2010 — joint-by-joint theory. Reiman et al., IJSPT 2012.',
+ prog:{w1:'2×5 powt./stronę statycznie',w6:'2×8 z aktywnym uniesieniem kolana',w11:'2×10 dynamicznie z przesuwaniem ciężaru'}},
+
+{id:'m4',name:"World's Greatest Stretch",icon:'🌍',cat:'mobility',time:null,bilateral:true,sets:2,reps:5,
+ muscles:'Hip flexors, Th-spine rotation, hamstrings, piriformis',diff:2,
+ steps:['Zacznij w wykroku (lunge): prawa noga z przodu','Ręce po obu stronach prawej stopy (lub tylne kolano na ziemi)','Krok 1: opuść prawy łokieć do podłogi przy stopie — stretch biodra','Krok 2: podnieś się; obróć tułów w prawo — prawa ręka do sufitu','Naprzemiennie łokieć/rotacja × 5 powt.; zmień nogę'],
+ errors:['Kolano przedniej nogi opada do środka — zablokuj je na zewnątrz','Za mało rotacji Th — skupiasz się tylko na biodrach','Zbyt szybkie tempo — każda pozycja 2–3s'],
+ science:"World's greatest stretch mobilizuje jednocześnie: biodra, odcinek piersiowy i hamstringi. Rekomendowany w protokołach pre-run activation przez NSCA i EXOS. Clark et al., NASM 2014.",
+ prog:{w1:'2×3 kroki/stronę wolno',w6:'2×5 kroków/stronę',w11:'2×8 dynamicznie jako rozgrzewka'}},
+
+{id:'m5',name:'Calf Stretch',icon:'🦵',cat:'mobility',time:40,bilateral:true,sets:2,reps:null,
+ muscles:'Gastrocnemius (kolano proste), soleus (kolano ugięte), ścięgno Achillesa',diff:1,
+ steps:['GASTROCNEMIUS: stań przy ścianie; prawa noga z tyłu wyprostowana, pięta na ziemi','Noga prosta, pchaj się w ścianę — rozciąganie górnej łydki; 30–40s','SOLEUS: to samo, ale zegnij tylne kolano — rozciąganie niżej (soleus); 30–40s','Oba stretche na każdą stronę','Stopa prosta (nie pronacja) przez cały czas'],
+ errors:['Pięta tylnej nogi unosi się — brak efektu','Pronacja stopy do środka','Pomijanie soleus — często przeoczany a równie ważny'],
+ science:'Ograniczone zgięcie grzbietowe stopy → ↑ryzyko PFP, tendinopatii Achillesa i fasciitis plantaris. Każde 1° ↓dorsiflexji = ↑15% risk PFP. Radford et al., BJSM 2007; Bohm et al., J Exp Biol 2014.',
+ prog:{w1:'2×30s/stronę przy ścianie',w6:'2×40s + stopa na pochylni',w11:'2×45s + eccentric heel drops po stretchu'}},
+
+// ── BALANS (2) ───────────────────────────────────────────────
+{id:'b1',name:'Single Leg Balance',icon:'🧍',cat:'balance',time:30,bilateral:true,sets:3,reps:null,
+ muscles:'Peroneals, tibialis ant./post., GLmed, core',diff:1,
+ steps:['Stań na jednej nodze; kolano lekko ugięte (10–15°)','Wzrok utkwiony w jeden stały punkt przed sobą','Minimalne bujanie — mikrokorekty przez całą stopę','Postęp: oczy zamknięte, stojąc na macie, ruch rękami','Zmień stronę'],
+ errors:['Kolano zablokowane w hyperextension — brak pracy proprioceptywnej','Patrzenie w podłogę — ułatwia równowagę (input wzrokowy)','Trzymanie się ściany od razu'],
+ science:'Trening propriocepcji jednonożny ↓ryzyko skręcenia kostki o 47% u sportowców (RCT). Kluczowy dla stabilizacji kostka-kolano podczas fazy lotu biegu. Verhagen et al., BJSM 2004; McGuine et al., Am J Sports Med 2006.',
+ prog:{w1:'3×20s oczy otwarte',w6:'3×30s oczy zamknięte',w11:'3×30s na macie piankowej'}},
+
+{id:'b2',name:'Y-Balance Training',icon:'⭐',cat:'balance',time:null,bilateral:true,sets:2,reps:5,
+ muscles:'Głęboka stabilizacja nogi stojącej, biodro, core, propriocepcja',diff:3,
+ steps:['Stań na jednej nodze; wolna noga ugięta w kolanie','3 kierunki sięgnięcia: ANTERIOR (do przodu), POSTEROMEDIAL (tył-wewnątrz), POSTEROLATERAL (tył-zewnątrz)','Sięgnij wolną stopą — delikatne dotknięcie podłogi i wróć do pozycji','NIE przenoś ciężaru na sięgającą nogę','5× każdy kierunek; zmień nogę'],
+ errors:['Opieranie się na sięgającej nodze — to chód, nie balans','Rotacja tułowia przy sięganiu — neutralizuj aktywacją core','Brak powrotu do pozycji wyjściowej między powt.'],
+ science:'Y-Balance Test — najsilniejszy predyktor kontuzji kończyny dolnej (AUC 0.74–0.87). Asymetria >4 cm między stronami = ↑ryzyko kontuzji. Plisky et al., J North Am Sports Phys Ther 2009; Butler et al., J Strength Cond Res 2012.',
+ prog:{w1:'Nie dotyczy (faza 2+)',w6:'2×5 sięgnięć/kierunek/noga z dotknięciem',w11:'2×8 sięgnięć dynamicznie bez dotknięcia'}}
+];
+
+// ═══════════════════════════════════════════════════════════════
+// SESSION TEMPLATES — 9 ćwiczeń na fazę
+// ═══════════════════════════════════════════════════════════════
+const SESSIONS = {
+  baza: {
+    focus:'Nauka wzorców ruchowych, aktywacja głęboka, prewencja bazowa',
+    ids:[
+      {id:'r6', note:'Rolling stopy — fundament każdego treningu biegowego'},
+      {id:'r1', note:'Rolling łydek — prewencja fasciitis i tendinopatii'},
+      {id:'r2', note:'Rolling IT band — prewencja ITBS'},
+      {id:'s1', note:'Oddech przeponowy — aktywacja TrA'},
+      {id:'p1', note:'Glute Bridge + ADIM — aktywacja GM'},
+      {id:'h1', note:'Clamshell — izolacja GLmed'},
+      {id:'m1', note:'Hip flexor stretch — otwieranie biodra'},
+      {id:'m5', note:'Calf stretch — Achilles i powięź'},
+      {id:'b1', note:'Single leg balance — propriocepcja'}
+    ]
+  },
+  budowanie: {
+    focus:'Siła unilateralna, wzorzec zawiasowania, mobilność aktywna',
+    ids:[
+      {id:'r4', note:'Rolling piriformis — głębokie rotatory'},
+      {id:'r3', note:'Rolling czworogłowego'},
+      {id:'s2', note:'Dead bug — anty-ekstensja'},
+      {id:'p5', note:'Single-leg Glute Bridge — siła unilateralna'},
+      {id:'h4', note:'Monster walk — GLmed w zamkniętym łańcuchu'},
+      {id:'p2', note:'Bird dog — kontrola miednicy'},
+      {id:'m4', note:"World's greatest — mobilność wieloplanowa"},
+      {id:'m2', note:'Pigeon pose — piriformis i rotatory'},
+      {id:'b1', note:'Single leg balance — oczy zamknięte'}
+    ]
+  },
+  szczyt: {
+    focus:'Siła funkcjonalna, antyrotacja, propriocepcja zaawansowana',
+    ids:[
+      {id:'r2', note:'Rolling IT band + TFL'},
+      {id:'r4', note:'Rolling piriformis'},
+      {id:'s4', note:'Side plank — GLmed i QL'},
+      {id:'p4', note:'Pallof press — antyrotacja'},
+      {id:'h3', note:'Standing hip abduction z taśmą'},
+      {id:'p3', note:'Superman hold — łańcuch tylny'},
+      {id:'m3', note:'90/90 hip — aktywna mobilność'},
+      {id:'b2', note:'Y-Balance — dynamiczna propriocepcja'},
+      {id:'h5', note:'Hip hinge z obciążeniem'}
+    ]
+  },
+  utrzymanie: {
+    focus:'Utrzymanie formy, regeneracja, zmniejszone obciążenie',
+    ids:[
+      {id:'r5', note:'Rolling klatki piersiowej — odcinek Th'},
+      {id:'r1', note:'Rolling łydek'},
+      {id:'s3', note:'Plank — utrzymanie core'},
+      {id:'p1', note:'Glute bridge z pełną kontrolą'},
+      {id:'h1', note:'Clamshell z taśmą'},
+      {id:'m1', note:'Hip flexor stretch'},
+      {id:'m2', note:'Pigeon pose'},
+      {id:'m5', note:'Calf stretch'},
+      {id:'b1', note:'Single leg balance'}
+    ]
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let currentTab = 'session';
+let currentWeek = 1;
+let filterCat = 'ALL';
+let completedToday = {};     // {id: true}
+let history = {};            // {'2026-05-05': {id: true, ...}}
+let mobDb = null;
+let timerInterval = null;
+let timerRunning = false;
+let timerSecs = 0;
+let modalExId = null;
+let repCount = 0;
+let currentSet = 1;
+let totalSets = 1;
+
+// ═══════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════
+const today = () => new Date().toISOString().split('T')[0];
+const exById = id => EX.find(e => e.id === id);
+const catColor = cat => (CATS[cat] || {color:'#888'}).color;
+const catLabel = cat => (CATS[cat] || {label:cat}).label;
+
+function getPhase(w) {
+  if (w <= 5)  return 'baza';
+  if (w <= 10) return 'budowanie';
+  if (w <= 15) return 'szczyt';
+  return 'utrzymanie';
+}
+function phaseLabel(p) {
+  return {baza:'BAZA',budowanie:'BUDOWANIE',szczyt:'SZCZYT',utrzymanie:'UTRZYMANIE'}[p]||p;
+}
+function phaseColor(p) {
+  return {baza:'#22d3ee',budowanie:'#a3e635',szczyt:'#fbbf24',utrzymanie:'#fb923c'}[p]||'#888';
+}
+function getProgLevel(w) {
+  if (w <= 6)  return 1;
+  if (w <= 12) return 2;
+  return 3;
+}
+function durText(ex) {
+  if (ex.time) return ex.bilateral ? `${ex.time}s/str.` : `${ex.time}s`;
+  return `${ex.reps} powt × ${ex.sets} serie`;
+}
+function calcCurrentWeek() {
+  const start = new Date(PROGRAM_START);
+  const now   = new Date();
+  const diff  = Math.floor((now - start) / (7 * 24 * 60 * 60 * 1000));
+  return Math.min(Math.max(diff + 1, 1), 18);
+}
+function getSessionExercises() {
+  const phase = getPhase(currentWeek);
+  const tmpl  = SESSIONS[phase];
+  return tmpl.ids.map(s => {
+    const ex = exById(s.id);
+    return ex ? { ...ex, note: s.note } : null;
+  }).filter(Boolean);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INDEXEDDB
+// ═══════════════════════════════════════════════════════════════
+function initDB() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('mobility-coach-v1', 1);
+    r.onupgradeneeded = e => e.target.result.createObjectStore('kv');
+    r.onsuccess = e => { mobDb = e.target.result; res(); };
+    r.onerror   = e => rej(e.target.error);
+  });
+}
+function dbGet(k) {
+  return new Promise((res, rej) => {
+    const r = mobDb.transaction('kv','readonly').objectStore('kv').get(k);
+    r.onsuccess = () => res(r.result);
+    r.onerror   = () => rej(r.error);
+  });
+}
+function dbSet(k, v) {
+  return new Promise((res, rej) => {
+    const r = mobDb.transaction('kv','readwrite').objectStore('kv').put(v, k);
+    r.onsuccess = () => res();
+    r.onerror   = () => rej(r.error);
+  });
+}
+function saveHistory() { dbSet('history', history); }
+
+// ═══════════════════════════════════════════════════════════════
+// TAB ROUTING
+// ═══════════════════════════════════════════════════════════════
+function setTab(t) {
+  currentTab = t;
+  document.querySelectorAll('.tab').forEach(el => {
+    el.classList.toggle('active', el.textContent.toLowerCase().startsWith(t === 'session' ? 'se' : t === 'library' ? 'bi' : 'po'));
+  });
+  render();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER — DISPATCH
+// ═══════════════════════════════════════════════════════════════
+function render() {
+  const phase = getPhase(currentWeek);
+  document.getElementById('sub').textContent =
+    `Tyg. ${currentWeek} · ${phaseLabel(phase)} · L${getProgLevel(currentWeek)}`;
+  const c = document.getElementById('content');
+  if (currentTab === 'session')  c.innerHTML = renderSession();
+  else if (currentTab === 'library') c.innerHTML = renderLibrary();
+  else c.innerHTML = renderProgress();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER — SESSION TAB
+// ═══════════════════════════════════════════════════════════════
+function renderSession() {
+  const phase = getPhase(currentWeek);
+  const tmpl  = SESSIONS[phase];
+  const exList = getSessionExercises();
+  const todayH = history[today()] || {};
+  const done   = exList.filter(e => todayH[e.id]).length;
+  const pct    = exList.length ? Math.round(done / exList.length * 100) : 0;
+
+  let estMin = 0;
+  exList.forEach(e => {
+    if (e.time) estMin += (e.time * (e.sets || 1) + 30 * ((e.sets || 1) - 1)) / 60;
+    else        estMin += (e.reps * 3.5 * (e.sets || 1) + 45 * ((e.sets || 1) - 1)) / 60;
+  });
+
+  let html = `
+  <div class="wnav">
+    <div class="wn-inf">
+      <div class="wn-l">Tydzień planu</div>
+      <div class="wn-row">
+        <div class="wn-v">TYG ${currentWeek}</div>
+        <div class="wn-p" style="background:${phaseColor(phase)}22;color:${phaseColor(phase)}">${phaseLabel(phase)}</div>
+      </div>
+    </div>
+    <button class="wbtn" onclick="chgWeek(-1)">◀</button>
+    <button class="wbtn" onclick="chgWeek(1)">▶</button>
+  </div>
+
+  <div class="pbanner">
+    <div class="pb-l">Cel fazy</div>
+    <div class="pb-t">${tmpl.focus}</div>
+  </div>
+
+  <div class="sess-hdr">
+    <div class="sh-top">
+      <div class="sh-title">${phaseLabel(phase)} — Sesja dzienna</div>
+      <div class="sh-meta">~${Math.round(estMin)} min</div>
+    </div>
+    <div class="sh-bar"><div class="sh-fill" style="width:${pct}%"></div></div>
+    <div class="sh-stats">${done}/${exList.length} ćwiczeń ukończone · ${pct}%</div>
+  </div>
+
+  <div class="card" style="padding:0">`;
+
+  exList.forEach(e => {
+    const isDone = !!todayH[e.id];
+    html += `
+    <div class="sess-item" onclick="openExercise('${e.id}')">
+      <div class="si-dot" style="background:${catColor(e.cat)}"></div>
+      <div class="si-body">
+        <div class="si-name" style="${isDone ? 'color:var(--m);text-decoration:line-through' : ''}">${e.icon} ${e.name}</div>
+        <div class="si-note">${e.note}</div>
+      </div>
+      <div class="si-dur">${durText(e)}</div>
+      <button class="si-ck${isDone ? ' done' : ''}" onclick="event.stopPropagation();toggleDone('${e.id}')">${isDone ? '✓' : ''}</button>
+    </div>`;
+  });
+
+  html += `</div>
+  <div style="font-size:9px;color:var(--m);text-align:center;margin-top:8px;line-height:1.7">
+    Kolejność: Rolling → Stabilizacja głęboka → Siła → Mobilność<br>
+    Tapnij ćwiczenie → technika, EBM i timer
+  </div>`;
+
+  if (done === exList.length && exList.length > 0) {
+    html += `<div style="margin-top:12px;padding:13px;background:rgba(163,230,53,.1);border:1px solid rgba(163,230,53,.3);border-radius:2px;text-align:center">
+      <div class="df" style="font-size:1.2rem;color:var(--lime)">SESJA UKOŃCZONA ✓</div>
+      <div style="font-size:10px;color:var(--m2);margin-top:4px">Nieźle. Jutro znowu.</div>
+    </div>`;
+  }
+
+  return html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER — LIBRARY TAB
+// ═══════════════════════════════════════════════════════════════
+function renderLibrary() {
+  const cats = ['ALL', ...Object.keys(CATS)];
+  const filtered = filterCat === 'ALL' ? EX : EX.filter(e => e.cat === filterCat);
+  const progLevel = getProgLevel(currentWeek);
+  const allDone = Object.values(history).reduce((s, h) => ({ ...s, ...h }), {});
+
+  let html = '<div class="frow">';
+  cats.forEach(c => {
+    const label = c === 'ALL' ? 'Wszystkie' : catLabel(c);
+    html += `<button class="fp${filterCat === c ? ' on' : ''}" onclick="setFilter('${c}')">${label}</button>`;
+  });
+  html += '</div>';
+
+  filtered.forEach(ex => {
+    const everDone = !!allDone[ex.id];
+    const todayDone = !!(history[today()] || {})[ex.id];
+    html += `
+    <div class="excard">
+      <div class="ex-h" onclick="toggleExCard('${ex.id}')">
+        <div class="ex-ico">${ex.icon}</div>
+        <div class="ex-inf">
+          <div class="ex-nm">${ex.name}</div>
+          <div class="ex-mt">
+            <span class="cpill" style="background:${catColor(ex.cat)}22;color:${catColor(ex.cat)}">${catLabel(ex.cat)}</span>
+            <span>${durText(ex)}</span>
+            <span style="color:var(--m)">${'★'.repeat(ex.diff)}${'☆'.repeat(3-ex.diff)}</span>
+            ${everDone ? '<span style="color:var(--lime)">✓ wykonane</span>' : ''}
+          </div>
+        </div>
+        <button class="ex-ck${todayDone ? ' done' : ''}" onclick="event.stopPropagation();toggleDone('${ex.id}')">${todayDone ? '✓' : ''}</button>
+      </div>
+      <div class="ex-body" id="exb-${ex.id}">
+        <div class="sec">
+          <div class="sec-t">Mięśnie</div>
+          <div style="font-size:11px;color:var(--m2)">${ex.muscles}</div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">Technika krok po kroku</div>
+          <ol class="steps">${ex.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+        </div>
+        <div class="sec">
+          <div class="sec-t">Najczęstsze błędy</div>
+          <ul class="errs">${ex.errors.map(e => `<li>${e}</li>`).join('')}</ul>
+        </div>
+        <div class="ebm">
+          <div class="ebm-l">📚 Podstawy naukowe (EBM)</div>
+          <div class="ebm-t">${ex.science}</div>
+        </div>
+        <div class="sec" style="margin-top:12px">
+          <div class="sec-t">Progresja 18 tygodni</div>
+          <div class="prog-grid">
+            <div class="prog-c${progLevel === 1 ? ' cur' : ''}">
+              <div class="prog-lbl">L1 · Tyg 1–6</div>
+              <div class="prog-v">${ex.prog.w1}</div>
+            </div>
+            <div class="prog-c${progLevel === 2 ? ' cur' : ''}">
+              <div class="prog-lbl">L2 · Tyg 7–12</div>
+              <div class="prog-v">${ex.prog.w6}</div>
+            </div>
+            <div class="prog-c${progLevel === 3 ? ' cur' : ''}">
+              <div class="prog-lbl">L3 · Tyg 13–18</div>
+              <div class="prog-v">${ex.prog.w11}</div>
+            </div>
+          </div>
+        </div>
+        <button class="run-btn" onclick="openExercise('${ex.id}')">▶ Uruchom z timerem</button>
+      </div>
+    </div>`;
+  });
+  return html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER — PROGRESS TAB
+// ═══════════════════════════════════════════════════════════════
+function renderProgress() {
+  const allDays = Object.keys(history).sort();
+  const totalSess = allDays.filter(d => Object.keys(history[d]).length > 0).length;
+  const totalEx   = Object.values(history).reduce((s, h) => s + Object.keys(h).length, 0);
+  const streak    = calcStreak();
+
+  // last 7 days bar chart
+  const last7 = Array.from({length:7}, (_, i) => {
+    const d = new Date(); d.setDate(d.getDate() - (6 - i));
+    const k = d.toISOString().split('T')[0];
+    return { k, count: Object.keys(history[k] || {}).length,
+             isToday: k === today(),
+             label: d.toLocaleDateString('pl-PL',{weekday:'short'}).slice(0,2) };
+  });
+  const maxCount = Math.max(...last7.map(d => d.count), 1);
+
+  // Category breakdown
+  const catCounts = {};
+  Object.values(history).forEach(h => {
+    Object.keys(h).forEach(id => {
+      const ex = exById(id); if (!ex) return;
+      catCounts[ex.cat] = (catCounts[ex.cat] || 0) + 1;
+    });
+  });
+
+  let html = `
+  <div class="g2">
+    <div class="stat"><div class="stat-l">Sesji ukończonych</div><div class="stat-v" style="color:var(--lime)">${totalSess}</div></div>
+    <div class="stat"><div class="stat-l">Ćwiczeń łącznie</div><div class="stat-v">${totalEx}</div></div>
+    <div class="stat"><div class="stat-l">Streak (dni)</div><div class="stat-v" style="color:var(--amber)">${streak}</div></div>
+    <div class="stat"><div class="stat-l">Poziom progresji</div><div class="stat-v" style="color:${phaseColor(getPhase(currentWeek))};font-size:1.3rem">L${getProgLevel(currentWeek)}</div></div>
+  </div>
+
+  <div class="card">
+    <div class="cl">Aktywność — ostatnie 7 dni</div>
+    <div class="bars7">`;
+
+  last7.forEach(d => {
+    const h = Math.max(4, Math.round((d.count / maxCount) * 50));
+    html += `
+      <div class="bar7-wrap">
+        <div class="bar7" style="height:${h}px;background:${d.isToday ? 'var(--lime)' : d.count > 0 ? 'var(--b2)' : 'var(--b)'}"></div>
+        <div class="bar7-lbl">${d.label}</div>
+      </div>`;
+  });
+  html += `</div></div>`;
+
+  if (Object.keys(catCounts).length) {
+    html += `<div class="card"><div class="cl">Rozkład kategorii</div>`;
+    Object.entries(catCounts).sort((a,b) => b[1]-a[1]).forEach(([cat, n]) => {
+      const pct = totalEx ? Math.round(n / totalEx * 100) : 0;
+      html += `
+      <div class="catbar">
+        <div class="catbar-hdr"><span style="color:${catColor(cat)}">${catLabel(cat)}</span><span style="color:var(--m2)">${n}×</span></div>
+        <div class="catbar-bg"><div class="catbar-fill" style="width:${pct}%;background:${catColor(cat)}"></div></div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `
+  <div class="card">
+    <div class="cl">Dlaczego ten protokół — EBM</div>
+    <div style="font-size:11px;color:var(--m2);line-height:1.8">
+      <div style="margin-bottom:7px"><span style="color:var(--cyan)">ROLLING</span> — FR ↓DOMS i ↑ROM bez utraty siły. Behm 2011, Pearcey 2015.</div>
+      <div style="margin-bottom:7px"><span style="color:var(--purple)">GŁĘBOKA STAB.</span> — TrA aktywuje się anticipatoryjnie PRZED ruchem. Hodges & Richardson 1997.</div>
+      <div style="margin-bottom:7px"><span style="color:var(--amber)">L-MIEDNICZNA</span> — Glute bridge + ADIM ↑GM o 25%. Moon 2014.</div>
+      <div style="margin-bottom:7px"><span style="color:var(--orange)">BIODRO-SIŁA</span> — GLmed: prewencja ITBS (−47%) i PFP. Distefano 2009, Boren 2011.</div>
+      <div style="margin-bottom:7px"><span style="color:var(--green)">MOBILNOŚĆ</span> — Deficyt IR biodra → ITBS. Calf stretch 2×/dzień → prewencja fasciitis. Radford 2007.</div>
+      <div><span style="color:var(--cyan)">BALANS</span> — Propriocepcja jednonożna ↓ryzyko kontuzji kostki o 47%. Verhagen 2004.</div>
+    </div>
+  </div>`;
+
+  return html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXERCISE MODAL + TIMER
+// ═══════════════════════════════════════════════════════════════
+function openExercise(id) {
+  const ex = exById(id); if (!ex) return;
+  modalExId = id; repCount = 0; currentSet = 1; totalSets = ex.sets || 1;
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; timerRunning = false; }
+
+  document.getElementById('mTitle').textContent = ex.name;
+  document.getElementById('mSub').textContent = ex.muscles;
+
+  let body = '';
+
+  // Steps (mini list)
+  body += `<ul class="mod-steps">${ex.steps.map(s => `<li>${s}</li>`).join('')}</ul>`;
+
+  // Timer or reps
+  if (ex.time) {
+    timerSecs = ex.time;
+    const sideLabel = ex.bilateral ? 'LEWA STRONA' : '';
+    body += `
+    <div class="t-display">
+      <div class="t-val" id="tVal">${fmtTimer(ex.time)}</div>
+      ${ex.bilateral ? `<div class="t-side" id="tSide">${sideLabel}</div>` : ''}
+      <div class="t-lbl" id="tLbl">${ex.sets > 1 ? `${ex.sets} serie` : 'czas'}</div>
+    </div>
+    <div class="set-row" id="setRow">${renderDots(ex.sets)}</div>
+    <div class="t-btns">
+      <button class="tbtn primary" id="tStart" onclick="startTimer()">▶ START</button>
+      <button class="tbtn" onclick="skipTimer()">POMIŃ</button>
+    </div>`;
+  } else {
+    body += `
+    <div class="rep-ctrl">
+      <button class="rbtn" onclick="chgRep(-1)">−</button>
+      <div>
+        <div class="rval" id="rVal">${repCount}</div>
+        <div class="rlbl">Powtórzenia</div>
+      </div>
+      <button class="rbtn" onclick="chgRep(1)">+</button>
+    </div>
+    <div style="text-align:center;font-size:9px;color:var(--m2)">Cel: ${ex.reps} powt × ${ex.sets} serie · przerwa 45–60s</div>
+    <div class="set-row" id="setRow">${renderDots(ex.sets)}</div>`;
+  }
+
+  // EBM
+  body += `<div class="ebm" style="margin-top:12px"><div class="ebm-l">📚 EBM</div><div class="ebm-t">${ex.science}</div></div>`;
+
+  // Progression current level
+  const lv = getProgLevel(currentWeek);
+  const progVal = lv === 1 ? ex.prog.w1 : lv === 2 ? ex.prog.w6 : ex.prog.w11;
+  body += `<div style="margin-top:10px;font-size:10px;color:var(--lime)">L${lv} · Tyg ${lv===1?'1–6':lv===2?'7–12':'13–18'}: ${progVal}</div>`;
+
+  document.getElementById('mBody').innerHTML = body;
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function renderDots(n) {
+  return Array.from({length: n}, (_, i) =>
+    `<div class="sdot${i === 0 ? ' cur' : ''}" id="dot${i}"></div>`
+  ).join('');
+}
+
+function fmtTimer(s) {
+  const m = Math.floor(s / 60), ss = s % 60;
+  return `${m}:${ss.toString().padStart(2, '0')}`;
+}
+
+function beep(freq = 880, dur = 0.15) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(0.25, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    o.start(ctx.currentTime); o.stop(ctx.currentTime + dur);
+  } catch(e) {}
+}
+
+function startTimer() {
+  if (timerRunning) {
+    clearInterval(timerInterval); timerRunning = false;
+    const btn = document.getElementById('tStart');
+    if (btn) btn.textContent = '▶ START';
+    return;
+  }
+  const ex = exById(modalExId); if (!ex) return;
+  timerRunning = true;
+  const btn = document.getElementById('tStart');
+  if (btn) btn.textContent = '⏸ PAUZA';
+
+  let side = 1; // 1 = left/single, 2 = right
+  let secs = ex.time;
+
+  timerInterval = setInterval(() => {
+    secs--;
+    const v = document.getElementById('tVal');
+    if (v) v.textContent = fmtTimer(secs);
+    if (secs <= 3 && secs > 0) beep(660, 0.1);
+    if (secs <= 0) {
+      beep(880, 0.2); setTimeout(() => beep(880, 0.2), 250);
+      if (ex.bilateral && side === 1) {
+        // switch to right side
+        side = 2; secs = ex.time;
+        const sl = document.getElementById('tSide');
+        if (sl) { sl.textContent = 'PRAWA STRONA'; sl.style.color = 'var(--rose)'; }
+        const lbl = document.getElementById('tLbl'); if (lbl) lbl.textContent = 'zmień stronę';
+      } else {
+        // set done
+        clearInterval(timerInterval); timerRunning = false;
+        const dot = document.getElementById(`dot${currentSet - 1}`);
+        if (dot) { dot.classList.remove('cur'); dot.classList.add('done'); }
+        if (currentSet < totalSets) {
+          currentSet++;
+          const nextDot = document.getElementById(`dot${currentSet - 1}`);
+          if (nextDot) nextDot.classList.add('cur');
+          secs = 30;
+          const lbl = document.getElementById('tLbl'); if (lbl) lbl.textContent = 'ODPOCZYNEK';
+          if (v) v.textContent = fmtTimer(secs);
+          side = 1;
+          // rest countdown
+          timerInterval = setInterval(() => {
+            secs--;
+            const v2 = document.getElementById('tVal'); if (v2) v2.textContent = fmtTimer(secs);
+            if (secs <= 0) {
+              clearInterval(timerInterval); timerRunning = false;
+              const lbl2 = document.getElementById('tLbl'); if (lbl2) lbl2.textContent = 'czas';
+              const v3 = document.getElementById('tVal'); if (v3) v3.textContent = fmtTimer(ex.time);
+              const b = document.getElementById('tStart'); if (b) b.textContent = '▶ START';
+              const sl2 = document.getElementById('tSide'); if (sl2) { sl2.textContent = 'LEWA STRONA'; sl2.style.color = 'var(--amber)'; }
+            }
+          }, 1000);
+          const b = document.getElementById('tStart'); if (b) b.textContent = '▶ START';
+          return;
+        } else {
+          const v2 = document.getElementById('tVal'); if (v2) v2.textContent = '✓';
+          const lbl = document.getElementById('tLbl'); if (lbl) lbl.textContent = 'UKOŃCZONO';
+          const b = document.getElementById('tStart'); if (b) b.textContent = '▶ START';
+        }
+      }
+    }
+  }, 1000);
+}
+
+function skipTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerRunning = false; }
+  const v = document.getElementById('tVal'); if (v) v.textContent = '✓';
+}
+
+function chgRep(d) {
+  repCount = Math.max(0, repCount + d);
+  const rv = document.getElementById('rVal'); if (rv) rv.textContent = repCount;
+  const ex = exById(modalExId);
+  if (ex && repCount >= ex.reps && currentSet < totalSets) {
+    currentSet++;
+    const dots = document.querySelectorAll('#setRow .sdot');
+    dots.forEach((dot, i) => { dot.className = 'sdot' + (i < currentSet-1 ? ' done' : i === currentSet-1 ? ' cur' : ''); });
+    repCount = 0; if (rv) rv.textContent = 0;
+  }
+}
+
+function markDone() {
+  if (modalExId) {
+    const d = today();
+    if (!history[d]) history[d] = {};
+    history[d][modalExId] = true;
+    completedToday[modalExId] = true;
+    saveHistory();
+  }
+  closeModal();
+  render();
+}
+
+function closeModal() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; timerRunning = false; }
+  document.getElementById('modal').style.display = 'none';
+}
+
+function onOverlayClick(e) {
+  if (e.target === document.getElementById('modal')) closeModal();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════════════
+function toggleDone(id) {
+  const d = today();
+  if (!history[d]) history[d] = {};
+  if (history[d][id]) {
+    delete history[d][id];
+    delete completedToday[id];
+  } else {
+    history[d][id] = true;
+    completedToday[id] = true;
+  }
+  saveHistory(); render();
+}
+
+function toggleExCard(id) {
+  const b = document.getElementById(`exb-${id}`);
+  if (b) b.classList.toggle('open');
+}
+
+function setFilter(c) { filterCat = c; render(); }
+
+function chgWeek(d) {
+  currentWeek = Math.min(18, Math.max(1, currentWeek + d));
+  dbSet('week', currentWeek);
+  render();
+}
+
+function calcStreak() {
+  let streak = 0, d = new Date();
+  for (let i = 0; i < 365; i++) {
+    const k = d.toISOString().split('T')[0];
+    const h = history[k] || {};
+    if (Object.keys(h).length > 0) streak++;
+    else if (i > 0) break;
+    d.setDate(d.getDate() - 1);
+  }
+  return streak;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+async function init() {
+  await initDB();
+  const [wk, hist] = await Promise.all([dbGet('week'), dbGet('history')]);
+  currentWeek = wk || calcCurrentWeek();
+  history = hist || {};
+  const th = history[today()] || {};
+  Object.keys(th).forEach(id => { completedToday[id] = true; });
+  render();
+}
+init();
+</script>
+</body>
+</html>
