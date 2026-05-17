@@ -1,48 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <radialGradient id="bg" cx="55%" cy="40%" r="60%">
-      <stop offset="0%" stop-color="#0f1f0a"/>
-      <stop offset="100%" stop-color="#000000"/>
-    </radialGradient>
-    <filter id="glow">
-      <feGaussianBlur stdDeviation="4" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
-
-  <!-- Background -->
-  <rect width="512" height="512" rx="96" fill="#000"/>
-  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
-
-  <!-- Speed lines (cyan) -->
-  <line x1="42" y1="224" x2="148" y2="224" stroke="#22d3ee" stroke-width="9" stroke-linecap="round" opacity="0.55"/>
-  <line x1="28" y1="264" x2="138" y2="264" stroke="#22d3ee" stroke-width="7" stroke-linecap="round" opacity="0.35"/>
-  <line x1="50" y1="304" x2="152" y2="304" stroke="#22d3ee" stroke-width="5" stroke-linecap="round" opacity="0.2"/>
-
-  <!-- Runner silhouette (lime green) -->
-  <g fill="#a3e635" filter="url(#glow)">
-    <!-- Head -->
-    <circle cx="308" cy="112" r="44"/>
-
-    <!-- Torso (leaning forward) -->
-    <path d="M288 153 L255 272 L308 278 L332 162 Z"/>
-
-    <!-- Front arm (up-forward) -->
-    <line x1="318" y1="185" x2="405" y2="138" stroke="#a3e635" stroke-width="28" stroke-linecap="round"/>
-
-    <!-- Back arm (down-back) -->
-    <line x1="272" y1="208" x2="188" y2="272" stroke="#a3e635" stroke-width="28" stroke-linecap="round"/>
-
-    <!-- Front leg (extended forward-down) -->
-    <polyline points="295,275 338,362 408,400" stroke="#a3e635" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-
-    <!-- Front foot -->
-    <rect x="395" y="392" width="68" height="22" rx="11" fill="#a3e635"/>
-
-    <!-- Back leg (extended back) -->
-    <polyline points="268,275 232,355 162,386" stroke="#a3e635" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-
-    <!-- Back foot -->
-    <rect x="142" y="378" width="62" height="20" rx="10" fill="#a3e635"/>
+  <rect width="512" height="512" rx="96" fill="#0a0a0a"/>
+  <line x1="18"  y1="200" x2="152" y2="192" stroke="#22d3ee" stroke-width="11" stroke-linecap="round" opacity="0.65"/>
+  <line x1="8"   y1="235" x2="145" y2="228" stroke="#22d3ee" stroke-width="8"  stroke-linecap="round" opacity="0.42"/>
+  <line x1="22"  y1="268" x2="148" y2="262" stroke="#22d3ee" stroke-width="5"  stroke-linecap="round" opacity="0.24"/>
+  <line x1="18"  y1="410" x2="152" y2="418" stroke="#22d3ee" stroke-width="8"  stroke-linecap="round" opacity="0.32"/>
+  <line x1="8"   y1="445" x2="145" y2="450" stroke="#22d3ee" stroke-width="5"  stroke-linecap="round" opacity="0.2"/>
+  <g stroke="#a3e635" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <circle cx="300" cy="86" r="46" fill="#a3e635" stroke="none"/>
+    <line x1="290" y1="130" x2="256" y2="295" stroke-width="52"/>
+    <line x1="282" y1="158" x2="362" y2="112" stroke-width="26"/>
+    <line x1="362" y1="112" x2="410" y2="96"  stroke-width="24"/>
+    <line x1="268" y1="162" x2="200" y2="202" stroke-width="26"/>
+    <line x1="200" y1="202" x2="182" y2="252" stroke-width="24"/>
+    <line x1="272" y1="294" x2="316" y2="378" stroke-width="32"/>
+    <line x1="316" y1="378" x2="302" y2="448" stroke-width="30"/>
+    <line x1="290" y1="452" x2="378" y2="450" stroke-width="26"/>
+    <line x1="255" y1="294" x2="188" y2="368" stroke-width="32"/>
+    <line x1="188" y1="368" x2="166" y2="428" stroke-width="30"/>
+    <line x1="158" y1="435" x2="198" y2="418" stroke-width="24"/>
   </g>
 </svg>
