@@ -562,9 +562,21 @@ const PLAN_DATA = [
   ]},
   {w:18,phase:'utrzymanie',km:22,sessions:[
     {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały finałowe',desc:'2 km rozgrzewka + 4×1 km I + 6×100 m R + wyciszenie',note:'~55 min',tags:['VO2max','szybkość']},
-    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki — finałowy test PR',desc:'Test maksymalnej serii — zanotuj wynik w Rekordach',note:'~35 min',tags:['siła','PR']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Finałowy długi',desc:'13 km E z M-pace końcówką',note:'~78 min',tags:['long','M-pace']},
-    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja UTRZYMANIE — podsumowanie 18 tygodni',note:'30 min',tags:['mobilność','opcja']},
+    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki — test PR',desc:'Test maksymalnej serii — zanotuj wynik w Rekordach',note:'~35 min',tags:['siła','PR']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Długi bieg',desc:'13 km E z M-pace końcówką',note:'~78 min',tags:['long','M-pace']},
+    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja UTRZYMANIE — pełna',note:'30 min',tags:['mobilność','opcja']},
+  ]},
+  {w:19,phase:'utrzymanie',km:20,sessions:[
+    {day:1,sport:'run',type:'tempo',icon:'💨',title:'Tempo — trzymaj próg',desc:'2 km rozgrzewka + 2×10 min T z 2 min truchtu + 1 km wyciszenie',note:'5:22/km · ~50 min',tags:['T-pace','próg']},
+    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower łatwy',desc:'50 min Z1–Z2, spokojnie',note:'Aktywna regeneracja',tags:['Z1','regeneracja']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Długi bieg',desc:'12 km E',note:'~72 min',tags:['long','Z2']},
+    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja UTRZYMANIE z modułu',note:'25 min',tags:['mobilność','opcja']},
+  ]},
+  {w:20,phase:'utrzymanie',km:18,sessions:[
+    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały końcowe — podsumowanie',desc:'2 km rozgrzewka + 4×1 km I z 90s + 1 km wyciszenie',note:'4:52/km · ~52 min',tags:['VO2max']},
+    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki — finałowy test PR',desc:'Test maksymalnej serii — zanotuj wynik w Rekordach',note:'~35 min · koniec 20 tygodni!',tags:['siła','PR']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Finałowy długi bieg',desc:'10 km E — celebruj 20 tygodni pracy',note:'~62 min',tags:['long']},
+    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja UTRZYMANIE — podsumowanie 20 tygodni',note:'30 min',tags:['mobilność','opcja']},
   ]},
 ];
 
@@ -575,7 +587,7 @@ const PHASES = {
   baza:{weeks:[1,5],color:'#22d3ee',label:'BAZA'},
   budowanie:{weeks:[6,10],color:'#a3e635',label:'BUDOWANIE'},
   szczyt:{weeks:[11,15],color:'#fbbf24',label:'SZCZYT'},
-  utrzymanie:{weeks:[16,18],color:'#fb923c',label:'UTRZYMANIE'}
+  utrzymanie:{weeks:[16,20],color:'#fb923c',label:'UTRZYMANIE'}
 };
 const CATS = {
   rolling:{label:'ROLLING',color:'#22d3ee'},
@@ -985,7 +997,7 @@ function renderPlan() {
   const today = todayStr();
   const planStart = new Date(PLAN_START);
   const now = new Date(today);
-  const weekNow = Math.max(1, Math.min(18, Math.floor((now-planStart)/(7*864e5))+1));
+  const weekNow = Math.max(1, Math.min(20, Math.floor((now-planStart)/(7*864e5))+1));
   const planDoneLocal = planDone;
 
   // progress
@@ -994,7 +1006,7 @@ function renderPlan() {
   const pct = Math.round(doneSess/totalSess*100);
 
   let html = `
-  <div class="plan-prog"><div class="cl">Postęp planu 18 tygodni</div>
+  <div class="plan-prog"><div class="cl">Postęp planu 20 tygodni</div>
     <div class="pp-bar"><div class="pp-fill" style="width:${pct}%"></div></div>
     <div class="pp-stats">Sesji: <span>${doneSess}/${totalSess}</span> Tyg: <span>${weekNow}/18</span> Km plan: <span>${PLAN_DATA.slice(0,weekNow).reduce((s,w)=>s+w.km,0)}</span></div>
   </div>`;
@@ -1396,7 +1408,7 @@ function renderMobLibrary() {
           <ul class="errs">${ex.errors.map(e=>`<li>${e}</li>`).join('')}</ul>
         </div>
         <div class="ebm"><div class="ebm-l">📚 EBM</div><div class="ebm-t">${ex.science}</div></div>
-        <div class="msec" style="margin-top:12px"><div class="msec-t">Progresja 18 tygodni</div>
+        <div class="msec" style="margin-top:12px"><div class="msec-t">Progresja 20 tygodni</div>
           <div class="prog-grid">
             <div class="prog-c${progLevel===1?' cur':''}"><div class="prog-lbl">L1 · Tyg 1–6</div><div class="prog-v">${ex.prog.w1}</div></div>
             <div class="prog-c${progLevel===2?' cur':''}"><div class="prog-lbl">L2 · Tyg 7–12</div><div class="prog-v">${ex.prog.w6}</div></div>
@@ -1583,7 +1595,7 @@ async function toggleMobDone(id){
 }
 function toggleMobCard(id){const b=document.getElementById(`exb-${id}`);if(b)b.classList.toggle('open');}
 function setMobFilter(c){mobFilterCat=c;render();}
-async function chgMobWeek(d){mobWeek=Math.min(18,Math.max(1,mobWeek+d));await dbSet('mobWeek',mobWeek);render();}
+async function chgMobWeek(d){mobWeek=Math.min(20,Math.max(1,mobWeek+d));await dbSet('mobWeek',mobWeek);render();}
 
 // ═══════════════════════════════════════════════════════════════
 // WORKOUT MODAL — ADD/EDIT
