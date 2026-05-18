@@ -926,7 +926,7 @@ function render() {
   else if (currentTab==='predictions') c.innerHTML = renderPredictions();
   else if (currentTab==='records') c.innerHTML = renderRecords();
   else if (currentTab==='mobility') c.innerHTML = renderMobility();
-  if (currentTab==='load') buildPMCChart();
+  if (currentTab==='load') { buildPMCChart(); buildWeeklyChart(); }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1060,6 +1060,11 @@ function renderOverview() {
   <div class="card"><div class="cl">Strefy tętna (Karvonen)</div>
     <div class="zl">${zones.map(z=>`<div class="zi"><div style="background:${z.c};height:4px;border-radius:2px;margin-bottom:3px"></div>${z.z}<br><span style="font-size:7px">${z.min}–${z.max}</span></div>`).join('')}</div>
   </div>
+  <div style="display:flex;gap:8px;margin-bottom:9px">
+    <button onclick="exportData()" style="flex:1;padding:11px 8px;background:var(--bg3);border:1px solid var(--b2);color:var(--lime);font-family:inherit;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:2px">⬇ Backup JSON</button>
+    <button onclick="exportCSV()" style="flex:1;padding:11px 8px;background:var(--bg3);border:1px solid var(--b2);color:var(--m2);font-family:inherit;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:2px">⬇ Eksport CSV</button>
+    <button onclick="document.getElementById('impFile').click()" style="flex:1;padding:11px 8px;background:var(--bg3);border:1px solid var(--b2);color:var(--m2);font-family:inherit;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:2px">⬆ Import</button>
+  </div>
   <div class="card"><div class="cl">Ostatnie treningi</div>`;
   recentSorted.forEach(w => {
     const z = hrZone(w.avgHR);
@@ -1146,7 +1151,10 @@ function renderPlan() {
           ${s.note?`<div class="sr-note">${s.note}</div>`:''}
           <div class="sr-tags">${s.tags.map(t=>`<div class="sr-tag">${t}</div>`).join('')}</div>
         </div>
-        <button class="sr-chk${isDone?' done':''}" onclick="togglePlanDone('${k}')">${isDone?'✓':''}</button>
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+          <button class="sr-chk${isDone?' done':''}" onclick="togglePlanDone('${k}')">${isDone?'✓':''}</button>
+          ${!isDone?`<button onclick="openAddFromPlan('${s.sport}','${s.type}','${s.title.replace(/'/g,"\\'")}','${s.note?s.note.replace(/'/g,"\\'"):''}')" style="font-size:8px;padding:3px 6px;background:transparent;border:1px solid var(--lime);color:var(--lime);cursor:pointer;font-family:inherit;border-radius:2px;white-space:nowrap">+ Dodaj</button>`:''}
+        </div>
       </div>`;
     });
 
@@ -1190,6 +1198,13 @@ function renderLoad() {
       <div class="pmli"><div class="pmd" style="background:var(--lime)"></div>TSB</div>
     </div>
   </div>
+  <div class="card"><div class="cl">Tygodniowe km — ostatnie 8 tygodni</div>
+    <div class="cwt" style="height:140px"><canvas id="weeklyChart"></canvas></div>
+    <div class="pml">
+      <div class="pmli"><div class="pmd" style="background:var(--lime)"></div>Bieg</div>
+      <div class="pmli"><div class="pmd" style="background:var(--amber)"></div>Rower</div>
+    </div>
+  </div>
   <div class="card"><div class="cl">Ostatnie 4 tygodnie</div>`;
 
   recent.forEach(w => {
@@ -1228,6 +1243,37 @@ function buildPMCChart() {
     ]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
       scales:{x:{ticks:{color:'#555',font:{size:9},maxTicksLimit:10},grid:{color:'#1e1e1e'}},
+              y:{ticks:{color:'#555',font:{size:9}},grid:{color:'#1e1e1e'}}}}
+  });
+}
+
+function buildWeeklyChart() {
+  const canvas = document.getElementById('weeklyChart');
+  if (!canvas) return;
+  // Build last 8 weeks (Mon–Sun)
+  const weeks = [];
+  const now = new Date();
+  const dow = (now.getDay()||7)-1;
+  const mon = new Date(now); mon.setDate(mon.getDate()-dow);
+  for (let i=7;i>=0;i--) {
+    const wMon = new Date(mon); wMon.setDate(wMon.getDate()-i*7);
+    const wSun = new Date(wMon); wSun.setDate(wSun.getDate()+6);
+    const wMonS = wMon.toISOString().split('T')[0];
+    const wSunS = wSun.toISOString().split('T')[0];
+    const label = wMon.toLocaleDateString('pl',{day:'numeric',month:'numeric'});
+    const runKm = workouts.filter(w=>w.sport==='run'&&w.date>=wMonS&&w.date<=wSunS).reduce((s,w)=>s+(w.dist||0),0);
+    const bikeKm = workouts.filter(w=>w.sport==='bike'&&w.date>=wMonS&&w.date<=wSunS).reduce((s,w)=>s+(w.dist||0),0);
+    weeks.push({label, runKm, bikeKm});
+  }
+  if (window._weekChart) window._weekChart.destroy();
+  window._weekChart = new Chart(canvas.getContext('2d'), {
+    type:'bar',
+    data:{labels:weeks.map(w=>w.label),datasets:[
+      {label:'Bieg km',data:weeks.map(w=>w.runKm.toFixed(1)),backgroundColor:'rgba(163,230,53,.7)',borderRadius:3},
+      {label:'Rower km',data:weeks.map(w=>w.bikeKm.toFixed(1)),backgroundColor:'rgba(251,191,36,.5)',borderRadius:3},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#555',font:{size:8}},grid:{display:false},stacked:false},
               y:{ticks:{color:'#555',font:{size:9}},grid:{color:'#1e1e1e'}}}}
   });
 }
@@ -1287,8 +1333,59 @@ function renderPredictions() {
       <div>Śr. tempo 30 dni: <span style="color:var(--lime)">${fmtPace(avgPaceRecent)}/km</span></div>
       <div>Pace progowy (LTHR): <span style="color:var(--amber)">${tempoRuns.length?fmtPace(racePace)+'/km':'brak danych tempo'}</span></div>
     </div>
+  </div>
+  <div class="card"><div class="cl">Kalkulator stref tempa (Jack Daniels)</div>
+    <div style="font-size:10px;color:var(--m2);margin-bottom:10px">Wpisz ostatni czas wyścigu lub biegu testowego:</div>
+    <div style="display:flex;gap:6px;margin-bottom:10px;align-items:center">
+      <select id="vdotDist" style="flex:1;background:var(--bg2);border:1px solid var(--b2);color:var(--t);padding:8px;font-family:inherit;font-size:10px">
+        <option value="5">5 km</option>
+        <option value="10" selected>10 km</option>
+        <option value="21.1">Półmaraton</option>
+        <option value="42.2">Maraton</option>
+      </select>
+      <input id="vdotH" type="number" min="0" max="5" placeholder="h" style="width:44px;background:var(--bg2);border:1px solid var(--b2);color:var(--t);padding:8px;font-family:inherit;font-size:12px;text-align:center">
+      <input id="vdotM" type="number" min="0" max="59" placeholder="mm" style="width:52px;background:var(--bg2);border:1px solid var(--b2);color:var(--t);padding:8px;font-family:inherit;font-size:12px;text-align:center">
+      <input id="vdotS" type="number" min="0" max="59" placeholder="ss" style="width:52px;background:var(--bg2);border:1px solid var(--b2);color:var(--t);padding:8px;font-family:inherit;font-size:12px;text-align:center">
+      <button onclick="calcVdot()" style="padding:8px 12px;background:var(--lime);color:#000;border:none;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;border-radius:2px">OK</button>
+    </div>
+    <div id="vdotResult"></div>
   </div>`;
   return html;
+}
+
+function calcVdot() {
+  const dist = parseFloat(document.getElementById('vdotDist').value);
+  const h = parseInt(document.getElementById('vdotH').value)||0;
+  const m = parseInt(document.getElementById('vdotM').value)||0;
+  const s = parseInt(document.getElementById('vdotS').value)||0;
+  const totalSec = h*3600+m*60+s;
+  if (!totalSec||totalSec<60) return;
+  const basePace = totalSec/dist; // s/km
+  // Jack Daniels strefy jako % tempa progowego (T-pace)
+  // T-pace ≈ tempo 60-min race pace (approx LTHR pace)
+  // E=76%, M=88%, T=100%, I=106%, R=115% prędkości
+  const tPace = basePace * (dist<=10 ? 1.08 : dist<=21.1 ? 1.03 : 1.0);
+  const zones = [
+    {z:'E  — Łatwy',       pct:1.30, color:'#22d3ee', desc:'Długie biegi, regeneracja'},
+    {z:'M  — Maratoński',  pct:1.13, color:'#a3e635', desc:'Długie tempo, long run'},
+    {z:'T  — Progowy',     pct:1.00, color:'#fbbf24', desc:'Cruise intervals, 20–40 min'},
+    {z:'I  — Interwałowy', pct:0.94, color:'#fb923c', desc:'Powtórzenia 1–2 km'},
+    {z:'R  — Repetycje',   pct:0.87, color:'#fb7185', desc:'Powtórzenia 200–400 m'},
+  ];
+  let html='<div style="margin-top:4px">';
+  zones.forEach(z=>{
+    const pace = tPace*z.pct;
+    html+=`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--b)">
+      <div style="width:3px;height:32px;background:${z.color};flex-shrink:0;border-radius:2px"></div>
+      <div style="flex:1">
+        <div style="font-size:10px;letter-spacing:.1em;color:${z.color}">${z.z}</div>
+        <div style="font-size:9px;color:var(--m2)">${z.desc}</div>
+      </div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--t)">${fmtPace(pace)}<span style="font-size:9px;color:var(--m2)">/km</span></div>
+    </div>`;
+  });
+  html+='</div>';
+  document.getElementById('vdotResult').innerHTML=html;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1708,7 +1805,29 @@ function openAdd(){
   editId=null;
   document.getElementById('modTitle').textContent='Dodaj trening';
   document.getElementById('fDate').value=todayStr();
+  document.getElementById('fNotes').value='';
+  document.getElementById('fDist').value='';
+  document.getElementById('fDur').value='';
+  document.getElementById('fAvgHR').value='';
+  document.getElementById('fMaxHR').value='';
+  document.getElementById('fRpe').value=5;
+  document.getElementById('rpeL').textContent='Wysiłek (RPE): 5/10';
   setSport('run');
+  document.getElementById('addModal').style.display='flex';
+}
+function openAddFromPlan(sport, type, title, note){
+  editId=null;
+  document.getElementById('modTitle').textContent='Dodaj: '+title;
+  document.getElementById('fDate').value=todayStr();
+  document.getElementById('fDist').value='';
+  document.getElementById('fDur').value='';
+  document.getElementById('fAvgHR').value='';
+  document.getElementById('fMaxHR').value='';
+  document.getElementById('fRpe').value=5;
+  document.getElementById('rpeL').textContent='Wysiłek (RPE): 5/10';
+  document.getElementById('fNotes').value=note||'';
+  setSport(sport);
+  document.getElementById('fType').value=type||'easy';
   document.getElementById('addModal').style.display='flex';
 }
 function openEdit(id){
