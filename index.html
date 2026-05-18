@@ -45,6 +45,10 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:'JetBrains
 .nb.active{color:var(--lime)}.nb .ni{font-size:16px;line-height:1}
 /* CARDS */
 .card{background:var(--bg3);border:1px solid var(--b);padding:13px;margin-bottom:9px;border-radius:2px}
+.ci{padding:9px 0 9px 12px;border-bottom:1px solid var(--b)}
+.ci:last-child{border-bottom:none}
+.ci-cat{font-size:8px;letter-spacing:.14em;font-weight:700;margin-bottom:3px}
+.ci-msg{font-size:11.5px;line-height:1.5;color:var(--m)}
 .cl{font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--m);margin-bottom:7px}
 .cv{font-size:2rem;font-weight:300;font-variant-numeric:tabular-nums}
 .ch{font-size:9px;color:var(--m);margin-top:2px}
@@ -928,6 +932,99 @@ function render() {
 // ═══════════════════════════════════════════════════════════════
 // RENDER — OVERVIEW
 // ═══════════════════════════════════════════════════════════════
+function analyzeCoach() {
+  const ins = [];
+  const pmc = calcPMC();
+  const today = todayStr();
+  const sorted = [...workouts].sort((a,b)=>a.date.localeCompare(b.date));
+  const todayP = pmc.find(p=>p.date===today)||{ctl:0,atl:0,tsb:0};
+  const d7  = new Date(Date.now()-7*864e5).toISOString().split('T')[0];
+  const d14 = new Date(Date.now()-14*864e5).toISOString().split('T')[0];
+  const d28 = new Date(Date.now()-28*864e5).toISOString().split('T')[0];
+  const last7  = sorted.filter(w=>w.date>=d7);
+  const last14 = sorted.filter(w=>w.date>=d14);
+
+  // 1. TSB trend (7 dni)
+  const p7 = pmc.find(p=>p.date===d7);
+  if (p7 && todayP.ctl>0) {
+    const diff = todayP.tsb - p7.tsb;
+    if (diff > 10)  ins.push({t:'good',  icon:'📈', cat:'ŚWIEŻOŚĆ',    msg:`TSB wzrosło o ${diff.toFixed(0)} pkt w tygodniu — dobrze się regenerujesz. Czas na jakościowy trening.`});
+    if (diff < -15) ins.push({t:'warn',  icon:'⚠️', cat:'ZMĘCZENIE',   msg:`TSB spadło o ${Math.abs(diff).toFixed(0)} pkt w 7 dni — duże nagromadzenie zmęczenia. Rozważ dzień wolny.`});
+  }
+
+  // 2. CTL ramp rate (28 dni, max 5 pkt/tydzień)
+  const p28 = pmc.find(p=>p.date===d28);
+  if (p28 && todayP.ctl>0) {
+    const ramp = (todayP.ctl - p28.ctl) / 4;
+    if (ramp > 6)      ins.push({t:'warn',  icon:'⚠️', cat:'PROGRESJA',  msg:`CTL rośnie za szybko: +${ramp.toFixed(1)} pkt/tydzień (bezpieczne max to 5). Ryzyko kontuzji z przeciążenia.`});
+    else if (ramp > 0) ins.push({t:'good',  icon:'💪', cat:'FORMA',      msg:`CTL rośnie stabilnie: +${ramp.toFixed(1)} pkt/tydzień. Progresja przebiega prawidłowo.`});
+    else if (ramp <-3) ins.push({t:'info',  icon:'📉', cat:'FORMA',      msg:`CTL spada ${ramp.toFixed(1)} pkt/tydzień — detrening. Zwiększ objętość lub wróć do planu.`});
+  }
+
+  // 3. ATL spike (>20 pkt w tygodniu)
+  if (p7 && todayP.ctl>0) {
+    const spike = todayP.atl - p7.atl;
+    if (spike > 20) ins.push({t:'danger', icon:'🔴', cat:'PRZECIĄŻENIE', msg:`ATL skoczyło o ${spike.toFixed(0)} pkt w 7 dni — zbyt duży bodziec naraz. Weź 1–2 dni odpoczynku.`});
+  }
+
+  // 4. Konsekutywne dni bez przerwy
+  const dates7 = [...new Set(last7.map(w=>w.date))].sort();
+  let cons=1, maxCons=1;
+  for (let i=1;i<dates7.length;i++) {
+    const d=(new Date(dates7[i])-new Date(dates7[i-1]))/864e5;
+    cons = d===1 ? cons+1 : 1;
+    maxCons = Math.max(maxCons,cons);
+  }
+  if (maxCons>=5) ins.push({t:'warn', icon:'😴', cat:'REGENERACJA', msg:`${maxCons} dni treningowych z rzędu bez przerwy — zaplanuj dzień wolny. Superkompensacja zachodzi w odpoczynku.`});
+
+  // 5. HR drift na łatwych biegach
+  const easy = sorted.filter(w=>w.sport==='run'&&w.type==='easy'&&w.avgHR>0&&w.dist>0);
+  if (easy.length>=6) {
+    const r3=easy.slice(-3), o3=easy.slice(-6,-3);
+    const rHR=r3.reduce((s,w)=>s+w.avgHR,0)/3;
+    const oHR=o3.reduce((s,w)=>s+w.avgHR,0)/3;
+    const drift=rHR-oHR;
+    if (drift>6)  ins.push({t:'warn', icon:'❤️', cat:'HR DRIFT', msg:`Tętno na łatwych biegach wzrosło o ${drift.toFixed(0)} bpm (${oHR.toFixed(0)}→${rHR.toFixed(0)}) — sygnał zmęczenia lub niedoboru snu/nawodnienia.`});
+    if (drift<-4) ins.push({t:'good', icon:'💚', cat:'HR DRIFT', msg:`Tętno na łatwych biegach spada (${oHR.toFixed(0)}→${rHR.toFixed(0)} bpm) — adaptacja tlenowa postępuje. Dobra robota!`});
+  }
+
+  // 6. Zasada 10% km biegowych tydzień/tydzień
+  const monOffset = (new Date().getDay()||7)-1;
+  const monThis = new Date(); monThis.setDate(monThis.getDate()-monOffset);
+  const monLast = new Date(monThis); monLast.setDate(monLast.getDate()-7);
+  const wThis = monThis.toISOString().split('T')[0];
+  const wLast = monLast.toISOString().split('T')[0];
+  const kmThis = workouts.filter(w=>w.date>=wThis&&w.sport==='run').reduce((s,w)=>s+(w.dist||0),0);
+  const kmLast = workouts.filter(w=>w.date>=wLast&&w.date<wThis&&w.sport==='run').reduce((s,w)=>s+(w.dist||0),0);
+  if (kmLast>5 && kmThis>kmLast*1.15) ins.push({t:'warn', icon:'📏', cat:'OBJĘTOŚĆ', msg:`Bieg tego tygodnia: ${kmThis.toFixed(0)} km vs ${kmLast.toFixed(0)} km poprzednio (+${Math.round((kmThis/kmLast-1)*100)}%). Przekroczono zasadę 10%.`});
+
+  // 7. Balans sportów (14 dni)
+  const b = {bike:last14.filter(w=>w.sport==='bike').length, pull:last14.filter(w=>w.sport==='pull').length};
+  if (last14.length>=4 && b.bike===0) ins.push({t:'info', icon:'🚴', cat:'BALANS', msg:`Brak roweru w ostatnich 2 tygodniach. Rower aktywnie regeneruje stawy i buduje bazę tlenową bez obciążania nóg.`});
+  if (last14.length>=4 && b.pull===0) ins.push({t:'info', icon:'💪', cat:'BALANS', msg:`Brak drążków w ostatnich 2 tygodniach. Siła górna i core chronią przed dysbalansem biegowym.`});
+
+  // 8. Trend tempa treningów jakościowych
+  const qual = sorted.filter(w=>w.sport==='run'&&(w.type==='interval'||w.type==='tempo')&&w.dist>0&&w.dur>0);
+  if (qual.length>=4) {
+    const r2=qual.slice(-2), o2=qual.slice(-4,-2);
+    const rP=r2.reduce((s,w)=>s+w.dur*60/w.dist,0)/2;
+    const oP=o2.reduce((s,w)=>s+w.dur*60/w.dist,0)/2;
+    const d=oP-rP;
+    if (d>10) ins.push({t:'good', icon:'⚡', cat:'SZYBKOŚĆ', msg:`Tempo treningów jakościowych poprawia się: ${fmtPace(oP)}→${fmtPace(rP)}/km. Adaptacja przebiega zgodnie z planem!`});
+    if (d<-15) ins.push({t:'warn', icon:'⚡', cat:'SZYBKOŚĆ', msg:`Tempo treningów jakościowych spada: ${fmtPace(oP)}→${fmtPace(rP)}/km. Sprawdź regenerację i nawodnienie.`});
+  }
+
+  // 9. Wysokie RPE na łatwych biegach (ostatnie 7 dni)
+  const hiRPE = last7.filter(w=>w.sport==='run'&&w.type==='easy'&&w.rpe>=7);
+  if (hiRPE.length>0) ins.push({t:'warn', icon:'🎯', cat:'RPE', msg:`${hiRPE.length} łatwy bieg z RPE≥7 — wysiłek nieodpowiedni do regeneracji. Zwolnij, łatwy bieg powinien być naprawdę łatwy.`});
+
+  // 10. Optymalna forma do startu
+  if (todayP.tsb>=5&&todayP.tsb<=15&&todayP.ctl>30) ins.push({t:'good', icon:'🏆', cat:'FORMA STARTOWA', msg:`TSB ${todayP.tsb.toFixed(0)} przy CTL ${todayP.ctl.toFixed(0)} — optymalny stan. Idealny moment na test lub start w zawodach.`});
+
+  if (ins.length===0) ins.push({t:'info', icon:'📊', cat:'TRENER', msg:'Wpisz więcej treningów — analiza potrzebuje kilku sesji żeby wykrywać trendy.'});
+  return ins;
+}
+
 function renderOverview() {
   const pmc = calcPMC();
   const todayP = pmc.find(p=>p.date===todayStr()) || {ctl:0,atl:0,tsb:0,tss:0};
@@ -980,6 +1077,20 @@ function renderOverview() {
     </div>`;
   });
   html += `</div>`;
+
+  // Coach insights
+  const cols = {good:'var(--lime)',warn:'var(--amber)',danger:'var(--red)',info:'var(--cyan)'};
+  const coachIns = analyzeCoach();
+  html += `<div class="card"><div class="cl">🧠 Analiza trenera</div>`;
+  coachIns.forEach(ins=>{
+    const c = cols[ins.t]||'var(--cyan)';
+    html += `<div class="ci" style="border-left:3px solid ${c}">
+      <div class="ci-cat" style="color:${c}">${ins.icon} ${ins.cat}</div>
+      <div class="ci-msg">${ins.msg}</div>
+    </div>`;
+  });
+  html += `</div>`;
+
   return html;
 }
 
