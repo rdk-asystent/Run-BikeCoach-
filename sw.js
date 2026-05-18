@@ -1,9 +1,9 @@
-const CACHE = 'runcoach-v1';
+const CACHE = 'runcoach-v2';
+const BASE = '/Run-BikeCoach-';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/mobility.html',
-  '/manifest.json',
+  BASE + '/',
+  BASE + '/index.html',
+  BASE + '/manifest.json',
   'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;700&display=swap',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
 ];
