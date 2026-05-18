@@ -1197,12 +1197,32 @@ function renderPlan() {
   const weekNow = Math.max(1, Math.min(20, Math.floor((now-planStart)/(7*864e5))+1));
   const planDoneLocal = planDone;
 
+  // Weekly km goal progress
+  const monOffset = (new Date().getDay()||7)-1;
+  const monThis = new Date(); monThis.setDate(monThis.getDate()-monOffset);
+  const wThisStr = monThis.toISOString().split('T')[0];
+  const kmThisWeek = workouts.filter(w=>w.sport==='run'&&w.date>=wThisStr).reduce((s,w)=>s+(w.dist||0),0);
+  const kmGoal = settings.wkly||60;
+  const kmPct = Math.min(Math.round(kmThisWeek/kmGoal*100),100);
+  const kmColor = kmPct>=100?'var(--lime)':kmPct>=60?'var(--amber)':'var(--cyan)';
+
   // progress
   const totalSess = PLAN_DATA.reduce((s,w)=>s+w.sessions.length,0);
   const doneSess  = Object.keys(planDoneLocal).length;
   const pct = Math.round(doneSess/totalSess*100);
 
   let html = `
+  <!-- TYGODNIOWY CEL KM -->
+  <div class="plan-prog">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+      <div class="cl" style="margin:0">Cel tygodniowy — bieg</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:${kmColor}">${kmThisWeek.toFixed(1)}<span style="font-size:10px;color:var(--m2)"> / ${kmGoal} km</span></div>
+    </div>
+    <div class="pp-bar" style="height:8px;margin-bottom:6px">
+      <div class="pp-fill" style="width:${kmPct}%;background:${kmColor};transition:width .6s ease"></div>
+    </div>
+    <div style="font-size:9px;color:var(--m2)">${kmPct>=100?'✅ Cel osiągnięty!':kmGoal-kmThisWeek>0?`Zostało ${(kmGoal-kmThisWeek).toFixed(1)} km do celu`:''} · Tydzień ${weekNow}/20</div>
+  </div>
   <div class="plan-prog"><div class="cl">Postęp planu 20 tygodni</div>
     <div class="pp-bar"><div class="pp-fill" style="width:${pct}%"></div></div>
     <div class="pp-stats">Sesji: <span>${doneSess}/${totalSess}</span> Tyg: <span>${weekNow}/20</span> Km plan: <span>${PLAN_DATA.slice(0,weekNow).reduce((s,w)=>s+w.km,0)}</span></div>
@@ -1242,6 +1262,7 @@ function renderPlan() {
         <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
           <button class="sr-chk${isDone?' done':''}" onclick="togglePlanDone('${k}')">${isDone?'✓':''}</button>
           ${!isDone?`<button onclick="openAddFromPlan('${s.sport}','${s.type}','${s.title.replace(/'/g,"\\'")}','${s.note?s.note.replace(/'/g,"\\'"):''}')" style="font-size:8px;padding:3px 6px;background:transparent;border:1px solid var(--lime);color:var(--lime);cursor:pointer;font-family:inherit;border-radius:2px;white-space:nowrap">+ Dodaj</button>`:''}
+          ${s.tags.includes('mobilność')?`<button onclick="setTab('mobility')" style="font-size:8px;padding:3px 6px;background:transparent;border:1px solid var(--purple);color:var(--purple);cursor:pointer;font-family:inherit;border-radius:2px;white-space:nowrap">💆 Otwórz</button>`:''}
         </div>
       </div>`;
     });
@@ -2068,6 +2089,23 @@ function exportCSV(){
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
 }
+
+// Swipe navigation
+(function(){
+  const TABS=['overview','plan','load','predictions','records','mobility'];
+  let tx=0,ty=0;
+  const el=document.getElementById('content');
+  el.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+  el.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-tx;
+    const dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){
+      const i=TABS.indexOf(currentTab);
+      if(dx<0&&i<TABS.length-1) setTab(TABS[i+1]);
+      else if(dx>0&&i>0) setTab(TABS[i-1]);
+    }
+  },{passive:true});
+})();
 
 async function init(){
   await initDB();
