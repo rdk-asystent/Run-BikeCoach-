@@ -1001,7 +1001,7 @@ function renderPlan() {
   let html = `
   <div class="plan-prog"><div class="cl">Postęp planu 20 tygodni</div>
     <div class="pp-bar"><div class="pp-fill" style="width:${pct}%"></div></div>
-    <div class="pp-stats">Sesji: <span>${doneSess}/${totalSess}</span> Tyg: <span>${weekNow}/18</span> Km plan: <span>${PLAN_DATA.slice(0,weekNow).reduce((s,w)=>s+w.km,0)}</span></div>
+    <div class="pp-stats">Sesji: <span>${doneSess}/${totalSess}</span> Tyg: <span>${weekNow}/20</span> Km plan: <span>${PLAN_DATA.slice(0,weekNow).reduce((s,w)=>s+w.km,0)}</span></div>
   </div>`;
 
   PLAN_DATA.forEach((week, wi) => {
