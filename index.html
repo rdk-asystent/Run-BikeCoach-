@@ -1025,47 +1025,136 @@ function analyzeCoach() {
   return ins;
 }
 
+function ring(val, max, color, label, sub, size=88) {
+  const r=34, cx=size/2, cy=size/2, circ=2*Math.PI*r;
+  const pct=Math.min(Math.max((max>0?val/max:0),0),1);
+  const dash=pct*circ, gap=circ-dash;
+  return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="7"/>
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="7"
+        stroke-dasharray="${dash.toFixed(1)} ${gap.toFixed(1)}" stroke-dashoffset="${(circ/4).toFixed(1)}"
+        stroke-linecap="round" style="transition:stroke-dasharray .6s ease"/>
+      <text x="${cx}" y="${cy-4}" text-anchor="middle" fill="white"
+        font-size="17" font-family="Bebas Neue,sans-serif" dominant-baseline="middle">${typeof val==='number'?val.toFixed(0):val}</text>
+      <text x="${cx}" y="${cy+10}" text-anchor="middle" fill="#666" font-size="7" font-family="inherit">${sub}</text>
+    </svg>
+    <div style="font-size:7.5px;letter-spacing:.12em;color:${color};text-transform:uppercase;text-align:center">${label}</div>
+  </div>`;
+}
+
 function renderOverview() {
   const pmc = calcPMC();
   const todayP = pmc.find(p=>p.date===todayStr()) || {ctl:0,atl:0,tsb:0,tss:0};
-  const last30 = workouts.filter(w=>w.date>=new Date(Date.now()-30*864e5).toISOString().split('T')[0]);
-  const runKm = last30.filter(w=>w.sport==='run').reduce((s,w)=>s+(w.dist||0),0);
-  const bikeKm = last30.filter(w=>w.sport==='bike').reduce((s,w)=>s+(w.dist||0),0);
-  const sessions = last30.length;
+  const d7  = new Date(Date.now()-7*864e5).toISOString().split('T')[0];
+  const d30 = new Date(Date.now()-30*864e5).toISOString().split('T')[0];
+  const last7  = workouts.filter(w=>w.date>=d7);
+  const last30 = workouts.filter(w=>w.date>=d30);
+  const runKm7  = last7.filter(w=>w.sport==='run').reduce((s,w)=>s+(w.dist||0),0);
+  const bikeKm7 = last7.filter(w=>w.sport==='bike').reduce((s,w)=>s+(w.dist||0),0);
+  const runKm30 = last30.filter(w=>w.sport==='run').reduce((s,w)=>s+(w.dist||0),0);
+  const bikeKm30= last30.filter(w=>w.sport==='bike').reduce((s,w)=>s+(w.dist||0),0);
+  const pullSess7 = last7.filter(w=>w.sport==='pull').length;
+  const avgHR7 = last7.filter(w=>w.avgHR>0).reduce((s,w,_,a)=>s+w.avgHR/a.length,0);
   const zones = karvonen();
 
-  // Next session recommendation
+  // Rekomendacja
   const tsb = todayP.tsb;
-  let recTitle='Dzień wolny lub regeneracja', recDesc='TSB wskazuje na odpoczynek', recColor='var(--cyan)';
-  if (tsb > 15) { recTitle='Forma szczytowa — startuj!'; recDesc='Świeżość idealna do testu lub startu. TSB >15 = zielone światło.'; recColor='var(--lime)'; }
-  else if (tsb > 5) { recTitle='Tempo / Interwały'; recDesc='Dobra forma, niskie zmęczenie. Idealny dzień na jakościowy trening.'; recColor='var(--amber)'; }
-  else if (tsb > -10) { recTitle='Długi bieg lub Tempo'; recDesc='Trening treningowy — wchodzisz w optymalny zakres obciążeń.'; recColor='var(--green)'; }
-  else if (tsb > -25) { recTitle='Regeneracja łatwa'; recDesc='Duże nagromadzenie zmęczenia. Łatwy bieg E lub rower rekon.'; recColor='var(--orange)'; }
-  else { recTitle='ODPOCZYNEK'; recDesc='TSB bardzo ujemne — kontuzje czyhają. Weź dzień wolny.'; recColor='var(--red)'; }
+  let recTitle='Dzień wolny', recDesc='TSB wskazuje na odpoczynek', recColor='var(--cyan)';
+  if (tsb>15)  {recTitle='Forma szczytowa — startuj!'; recDesc='TSB >15 — świeżość idealna. Zielone światło na test lub start.'; recColor='var(--lime)';}
+  else if (tsb>5)  {recTitle='Interwały / Tempo'; recDesc='Dobra forma, niskie zmęczenie. Idealny dzień na jakość.'; recColor='var(--amber)';}
+  else if (tsb>-10){recTitle='Długi bieg lub Tempo'; recDesc='Optymalny zakres obciążeń treningowych.'; recColor='var(--green)';}
+  else if (tsb>-25){recTitle='Regeneracja łatwa'; recDesc='Duże zmęczenie. Łatwy bieg E lub rower rekon.'; recColor='var(--orange)';}
+  else {recTitle='ODPOCZYNEK'; recDesc='TSB bardzo ujemne — ryzyko kontuzji. Weź dzień wolny.'; recColor='var(--red)';}
 
   const recentSorted = [...workouts].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,8);
 
+  // TSB ring: -50..+25 → 0..100%
+  const tsbPct = Math.min(Math.max((tsb+50)/75,0),1)*100;
+  const tsbColor = tsb>10?'var(--lime)':tsb>-10?'var(--amber)':'var(--red)';
+
   let html = `
+  <!-- REKOMENDACJA -->
   <div class="rec"><div class="rs" style="background:${recColor}"></div>
-    <div><div class="rl"><span>REKOMENDACJA DZIŚ</span><span style="color:${tsb>0?'var(--green)':'var(--orange)'}">TSB ${tsb>0?'+':''}${todayP.tsb.toFixed(1)}</span></div>
-    <div class="rt">${recTitle}</div>
-    <div class="rr">${recDesc}</div></div>
+    <div style="flex:1">
+      <div class="rl"><span>REKOMENDACJA DZIŚ</span><span style="color:${tsb>0?'var(--lime)':'var(--orange)'}">TSB ${tsb>0?'+':''}${todayP.tsb.toFixed(1)}</span></div>
+      <div class="rt">${recTitle}</div>
+      <div class="rr">${recDesc}</div>
+    </div>
   </div>
-  <div class="g4">
-    <div class="card"><div class="cl">CTL (Forma)</div><div class="cv" style="color:var(--cyan)">${todayP.ctl.toFixed(0)}</div><div class="ch">Fitness 42d</div></div>
-    <div class="card"><div class="cl">ATL (Zmęczenie)</div><div class="cv" style="color:var(--rose)">${todayP.atl.toFixed(0)}</div><div class="ch">Fatigue 7d</div></div>
-    <div class="card"><div class="cl">Bieg 30d</div><div class="cv" style="color:var(--lime)">${runKm.toFixed(0)}<span style="font-size:.9rem"> km</span></div><div class="ch">z ${sessions} sesji</div></div>
-    <div class="card"><div class="cl">Rower 30d</div><div class="cv" style="color:var(--amber)">${bikeKm.toFixed(0)}<span style="font-size:.9rem"> km</span></div><div class="ch">aktywnych</div></div>
+
+  <!-- PIERŚCIENIE PMC -->
+  <div class="card" style="padding:16px 13px">
+    <div class="cl" style="margin-bottom:14px">Performance Management</div>
+    <div style="display:flex;justify-content:space-around;align-items:flex-start">
+      ${ring(todayP.ctl, 120, '#22d3ee', 'CTL — Forma', '42d')}
+      ${ring(todayP.atl, 150, '#fb7185', 'ATL — Zmęczenie', '7d')}
+      ${ring(tsbPct, 100, tsbColor, 'TSB — Świeżość', tsb>0?'+'+tsb.toFixed(0):tsb.toFixed(0))}
+    </div>
   </div>
-  <div class="card"><div class="cl">Strefy tętna (Karvonen)</div>
-    <div class="zl">${zones.map(z=>`<div class="zi"><div style="background:${z.c};height:4px;border-radius:2px;margin-bottom:3px"></div>${z.z}<br><span style="font-size:7px">${z.min}–${z.max}</span></div>`).join('')}</div>
+
+  <!-- OSTATNIE 7 DNI -->
+  <div class="card">
+    <div class="cl">Ostatnie 7 dni</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:4px">
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--b)">
+        <span style="font-size:16px">🏃</span>
+        <div><div style="font-size:9px;color:var(--m2)">Bieg</div>
+          <div style="font-size:14px;font-family:'Bebas Neue',sans-serif;color:var(--lime)">${runKm7.toFixed(1)} <span style="font-size:9px;color:var(--m2)">km</span></div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--b)">
+        <span style="font-size:16px">🚴</span>
+        <div><div style="font-size:9px;color:var(--m2)">Rower</div>
+          <div style="font-size:14px;font-family:'Bebas Neue',sans-serif;color:var(--amber)">${bikeKm7.toFixed(0)} <span style="font-size:9px;color:var(--m2)">km</span></div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--b)">
+        <span style="font-size:16px">💪</span>
+        <div><div style="font-size:9px;color:var(--m2)">Drążki</div>
+          <div style="font-size:14px;font-family:'Bebas Neue',sans-serif;color:var(--purple)">${pullSess7} <span style="font-size:9px;color:var(--m2)">sesje</span></div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--b)">
+        <span style="font-size:16px">❤️</span>
+        <div><div style="font-size:9px;color:var(--m2)">Śr. tętno</div>
+          <div style="font-size:14px;font-family:'Bebas Neue',sans-serif;color:var(--rose)">${avgHR7>0?avgHR7.toFixed(0):'–'} <span style="font-size:9px;color:var(--m2)">bpm</span></div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 0">
+        <span style="font-size:16px">📏</span>
+        <div><div style="font-size:9px;color:var(--m2)">Bieg 30d</div>
+          <div style="font-size:14px;font-family:'Bebas Neue',sans-serif;color:var(--lime)">${runKm30.toFixed(0)} <span style="font-size:9px;color:var(--m2)">km</span></div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 0">
+        <span style="font-size:16px">🚵</span>
+        <div><div style="font-size:9px;color:var(--m2)">Rower 30d</div>
+          <div style="font-size:14px;font-family:'Bebas Neue',sans-serif;color:var(--amber)">${bikeKm30.toFixed(0)} <span style="font-size:9px;color:var(--m2)">km</span></div></div>
+      </div>
+    </div>
   </div>
+
+  <!-- STREFY TĘTNA -->
+  <div class="card">
+    <div class="cl">Strefy tętna (Karvonen)</div>
+    <div style="display:flex;flex-direction:column;gap:5px;margin-top:4px">
+      ${zones.map(z=>`
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="font-size:9px;color:${z.c};width:18px;font-weight:700">${z.z}</div>
+        <div style="flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden">
+          <div style="width:100%;height:100%;background:${z.c};opacity:.7;border-radius:3px"></div>
+        </div>
+        <div style="font-size:9px;color:var(--m2);width:68px;text-align:right">${z.min}–${z.max} bpm</div>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <!-- BACKUP -->
   <div style="display:flex;gap:8px;margin-bottom:9px">
     <button onclick="exportData()" style="flex:1;padding:11px 8px;background:var(--bg3);border:1px solid var(--b2);color:var(--lime);font-family:inherit;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:2px">⬇ Backup JSON</button>
-    <button onclick="exportCSV()" style="flex:1;padding:11px 8px;background:var(--bg3);border:1px solid var(--b2);color:var(--m2);font-family:inherit;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:2px">⬇ Eksport CSV</button>
+    <button onclick="exportCSV()" style="flex:1;padding:11px 8px;background:var(--bg3);border:1px solid var(--b2);color:var(--m2);font-family:inherit;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:2px">⬇ CSV</button>
     <button onclick="document.getElementById('impFile').click()" style="flex:1;padding:11px 8px;background:var(--bg3);border:1px solid var(--b2);color:var(--m2);font-family:inherit;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:2px">⬆ Import</button>
   </div>
+
+  <!-- OSTATNIE TRENINGI -->
   <div class="card"><div class="cl">Ostatnie treningi</div>`;
+
   recentSorted.forEach(w => {
     const z = hrZone(w.avgHR);
     const tss = calcTSS(w);
@@ -1095,7 +1184,6 @@ function renderOverview() {
     </div>`;
   });
   html += `</div>`;
-
   return html;
 }
 
