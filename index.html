@@ -1227,27 +1227,41 @@ function renderPlan() {
     <div class="pp-bar"><div class="pp-fill" style="width:${pct}%"></div></div>
     <div class="pp-stats">Sesji: <span>${doneSess}/${totalSess}</span> Tyg: <span>${weekNow}/20</span> Km plan: <span>${PLAN_DATA.slice(0,weekNow).reduce((s,w)=>s+w.km,0)}</span></div>
   </div>
-  <div class="card" style="margin-bottom:9px">
-    <div class="cl" style="margin-bottom:8px">Skala wysiłku — jak rozumieć opisy</div>
-    <div style="display:flex;flex-direction:column;gap:7px">
-      <div style="display:flex;align-items:baseline;gap:8px">
-        <div style="font-size:10px;font-weight:700;color:var(--cyan);min-width:70px">Spokojnie</div>
-        <div style="font-size:10px;color:var(--m2)">Mówisz pełne zdania · jak spacer ale szybszy · możesz biec godzinami</div>
+  ${(()=>{
+    const hrr = settings.maxHR - settings.rhr;
+    const z1lo = Math.round(settings.rhr + 0.50*hrr);
+    const z2hi = Math.round(settings.rhr + 0.70*hrr);
+    const z3lo = Math.round(settings.rhr + 0.70*hrr)+1;
+    const lthr = settings.lthr;
+    const z4lo = lthr+1;
+    const z4hi = Math.round(settings.rhr + 0.90*hrr);
+    const z5lo = z4hi+1;
+    return `<div class="card" style="margin-bottom:9px">
+    <div class="cl" style="margin-bottom:8px">Skala wysiłku — Twoje strefy tętna</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="font-size:10px;font-weight:700;color:var(--cyan);min-width:72px">Spokojnie</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--cyan);min-width:80px">${z1lo}–${z2hi} bpm</div>
+        <div style="font-size:9px;color:var(--m)">mówisz pełne zdania</div>
       </div>
-      <div style="display:flex;align-items:baseline;gap:8px">
-        <div style="font-size:10px;font-weight:700;color:var(--amber);min-width:70px">Mocno</div>
-        <div style="font-size:10px;color:var(--m2)">Możesz powiedzieć krótkie zdanie · rytmiczne oddychanie · utrzymasz 30+ min</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="font-size:10px;font-weight:700;color:var(--amber);min-width:72px">Mocno</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--amber);min-width:80px">${z3lo}–${lthr} bpm</div>
+        <div style="font-size:9px;color:var(--m)">krótkie zdanie, 30+ min</div>
       </div>
-      <div style="display:flex;align-items:baseline;gap:8px">
-        <div style="font-size:10px;font-weight:700;color:var(--rose);min-width:70px">Prawie na maksa</div>
-        <div style="font-size:10px;color:var(--m2)">Jedno słowo na oddechu · ciężko ale wytrzymasz 5–10 min · interwały</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="font-size:10px;font-weight:700;color:var(--rose);min-width:72px">Prawie maks</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--rose);min-width:80px">${z4lo}–${z4hi} bpm</div>
+        <div style="font-size:9px;color:var(--m)">jedno słowo, interwały</div>
       </div>
-      <div style="display:flex;align-items:baseline;gap:8px">
-        <div style="font-size:10px;font-weight:700;color:var(--lime);min-width:70px">Sprint</div>
-        <div style="font-size:10px;color:var(--m2)">Nie mówisz nic · 100% · tylko na 100–400 m, potem pełny odpoczynek</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="font-size:10px;font-weight:700;color:var(--lime);min-width:72px">Sprint</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--lime);min-width:80px">${z5lo}–${settings.maxHR} bpm</div>
+        <div style="font-size:9px;color:var(--m)">nic nie mówisz, 100–400 m</div>
       </div>
     </div>
   </div>`;
+  })()}`;
 
   PLAN_DATA.forEach((week, wi) => {
     const wStart = new Date(planStart); wStart.setDate(wStart.getDate() + wi*7);
