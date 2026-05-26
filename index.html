@@ -454,128 +454,131 @@ const SEED_PR = {
 // ═══════════════════════════════════════════════════════════════
 // Plan: głównie bieg + rower i drążki wplecione · 3–4 sesje/tydzień · max ~60 min
 // D1=Jakość biegowa, D2=Rower LUB Drążki, D3=Długi bieg, D4=Mobilność (opcja ≤30 min)
+// Cel: ogólna sprawność · max 60 min/sesja · bieg + rower + drążki
+// Cel: ogólna sprawność · max 60 min/sesja · bieg + rower + drążki
 const PLAN_DATA = [
-  {w:1,phase:'baza',km:15,sessions:[
-    {day:1,sport:'run',type:'easy',icon:'🏃',title:'Łatwy bieg + krótkie przyspieszenia',desc:'6 km spokojnym tempem (możesz mówić całe zdania) + 4 × 100 m szybko na końcu, po każdym pełny odpoczynek (chód do regeneracji)',note:'Zatrzymaj się jeśli łydka boli · ~45 min',tags:['łatwy','wejście']},
-    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower regeneracyjny',desc:'35–40 min bardzo lekko — niski opór, nogi się kręcą bez wysiłku. To nie trening, to aktywny odpoczynek',note:'Odpoczynek dla łydki · spokojnie',tags:['regeneracja']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Długi bieg — bardzo spokojnie',desc:'9 km spokojnym tempem, oddychasz swobodnie przez cały czas. Jeśli poczujesz ból łydki — zatrzymaj się bez wahania',note:'~58 min · nawodnienie!',tags:['długi']},
+  {w:1,phase:'baza',km:14,sessions:[
+    {day:1,sport:'run',type:'easy',icon:'🏃',title:'Łatwy bieg + krótkie przyspieszenia',desc:'6 km spokojnie (120–143 bpm) + 4 × 100 m szybko na końcu, po każdym chód do pełnego odpoczynku',note:'Zatrzymaj się jeśli łydka boli · ~40 min',tags:['łatwy','wejście']},
+    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower regeneracyjny',desc:'35–40 min bardzo lekko — niski opór, nogi się kręcą bez wysiłku',note:'Odpoczynek dla łydki · ~38 min',tags:['regeneracja']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg',desc:'8 km spokojnie (120–143 bpm). Jeśli poczujesz ból łydki — zatrzymaj się bez wahania',note:'~48 min · nawodnienie!',tags:['spokojny']},
     {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja BAZA — rolling łydek + rozluźnienie pośladka + rozciąganie przodu biodra',note:'20–25 min · priorytet: łydki!',tags:['mobilność','opcja']},
   ]},
-  {w:2,phase:'baza',km:20,sessions:[
-    {day:1,sport:'run',type:'tempo',icon:'💨',title:'Bieg progowy — mocno ale kontrolowanie',desc:'2 km rozgrzewki spokojnie → 3 razy po 8 min biegu mocno (ciężko, ale wytrzymałbyś 30 min bez przerwy) → 2 min truchtu jako przerwa między każdą serią → 1 km wyciszenia spokojnie',note:'5:25–5:35/km · czujesz wysiłek, ale nie walczysz o przeżycie · ~55 min',tags:['mocny','próg']},
-    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki + mobilność',desc:'5 serii drążków prawie do maksimum powtórzeń, przerwa 2 min między seriami → 15 min sesji mobilności',note:'Technika ważniejsza niż liczba powtórzeń · ~40 min',tags:['siła','mobilność']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Długi bieg',desc:'11 km spokojnie + 4 krótkie przyspieszenia po 100 m na samym końcu',note:'~70 min · spokojnie przez całą drogę',tags:['długi']},
-    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja BAZA — pełna sesja 9 ćwiczeń z modułu Mobilność',note:'25 min',tags:['mobilność','opcja']},
+  {w:2,phase:'baza',km:17,sessions:[
+    {day:1,sport:'run',type:'tempo',icon:'💨',title:'Bieg mocny z przerwami',desc:'2 km spokojnie → 3 razy po 8 min mocno (144–162 bpm) → 2 min truchtu jako przerwa między każdą serią → 1 km spokojnie',note:'Czujesz wysiłek, ale możesz powiedzieć krótkie zdanie · ~50 min',tags:['mocny']},
+    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki + mobilność',desc:'5 serii drążków prawie do maksimum, przerwa 2 min między seriami → 15 min mobilności',note:'Technika ważniejsza niż liczba powtórzeń · ~40 min',tags:['siła','mobilność']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg',desc:'8 km spokojnie (120–143 bpm) + 4 krótkie przyspieszenia po 100 m na samym końcu',note:'~50 min',tags:['spokojny']},
+    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja BAZA — pełna sesja 9 ćwiczeń z modułu',note:'25 min',tags:['mobilność','opcja']},
   ]},
-  {w:3,phase:'baza',km:20,sessions:[
-    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały — bieg mocny z przerwami',desc:'2 km rozgrzewki → 6 razy 1 km mocno (ciężko, ale nie 100%) → 75 sek truchtu jako przerwa po każdym → 1 km wyciszenia',note:'4:52/km · po każdym kilometrze czujesz ulgę z odpoczynku · ~55 min',tags:['interwały']},
-    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower łatwy',desc:'50 min na rowerze spokojnie, równy rytm pedałowania bez forsowania — nogi pracują, ale bez wysiłku',note:'Aktywna regeneracja po interwałach',tags:['regeneracja']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Długi bieg + ćwiczenia techniki',desc:'12 km spokojnie — po 6 km zatrzymaj się na 5 min ćwiczeń biegowych: unoszenie kolan w miejscu, bieg tyłem 20 m, wymachy nóg',note:'~72 min · ćwiczenia poprawiają technikę kroku',tags:['długi','technika']},
-    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja BAZA z modułu Mobilność',note:'25 min',tags:['mobilność','opcja']},
+  {w:3,phase:'baza',km:18,sessions:[
+    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały — bieg mocny z przerwami',desc:'2 km spokojnie → 5 razy 1 km mocno (162–172 bpm) → 75 sek truchtu jako przerwa po każdym → 1 km spokojnie',note:'Po każdym kilometrze czujesz ulgę z odpoczynku · ~52 min',tags:['interwały']},
+    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower łatwy',desc:'50 min spokojnie, równy rytm pedałowania — nogi pracują bez wysiłku',note:'Aktywna regeneracja po interwałach · ~50 min',tags:['regeneracja']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg + ćwiczenia techniki',desc:'9 km spokojnie — po 4,5 km zatrzymaj się na 5 min: unoś kolana w miejscu, bieg tyłem 20 m, wymachy nóg',note:'~55 min · ćwiczenia poprawiają technikę kroku',tags:['spokojny','technika']},
+    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja BAZA z modułu',note:'25 min',tags:['mobilność','opcja']},
   ]},
-  {w:4,phase:'baza',km:16,sessions:[
-    {day:1,sport:'run',type:'easy',icon:'🏃',title:'Łatwy — tydzień odciążający',desc:'8 km bardzo spokojnie — to jest zaplanowany lżejszy tydzień, nie próbuj przyspieszać',note:'Tętno poniżej 150 · ~52 min',tags:['łatwy','regeneracja']},
-    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki — lekko',desc:'4 serie drążków z dłuższymi przerwami 3 min — tydzień odciążający, nie forsuj się',note:'~30 min · to jest zaplanowany lżejszy tydzień',tags:['siła']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Krótszy długi bieg',desc:'9 km spokojnie — trochę mniej niż normalny długi bieg, celowo',note:'~58 min · lżej niż zwykle — tak ma być',tags:['długi']},
+  {w:4,phase:'baza',km:14,sessions:[
+    {day:1,sport:'run',type:'easy',icon:'🏃',title:'Łatwy — tydzień odciążający',desc:'7 km spokojnie (120–143 bpm) — zaplanowany lżejszy tydzień, nie próbuj przyspieszać',note:'~42 min',tags:['łatwy','regeneracja']},
+    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki — lekko',desc:'4 serie drążków z dłuższymi przerwami 3 min — tydzień odciążający, nie forsuj',note:'~30 min',tags:['siła']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg',desc:'7 km spokojnie',note:'~42 min · lżej niż zwykle — tak ma być',tags:['spokojny']},
     {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Rolling łydek + rozluźnienie pośladka + rozciąganie przodu biodra',note:'20 min',tags:['mobilność','opcja']},
   ]},
-  {w:5,phase:'baza',km:22,sessions:[
-    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały — dłuższe odcinki',desc:'2 km rozgrzewki → 4 razy 1200 m mocno (1200 m = 3 okrążenia stadionu) → 90 sek truchtu jako przerwa → 1 km wyciszenia',note:'4:50/km · ~55 min',tags:['interwały']},
-    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower — dłuższy',desc:'55–60 min spokojnie, możesz wybrać trasę z pagórkami jeśli chcesz',note:'Budujesz kondycję bez obciążenia stawów — uzupełnia bieganie',tags:['aerob']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Długi bieg z szybszą końcówką',desc:'13 km spokojnie — ostatnie 2 km przyspiesz do tempa maratońskiego (szybciej niż spokojny bieg, ale nie sprint)',note:'~75 min · kończ mocniej niż zaczynasz',tags:['długi']},
+  {w:5,phase:'baza',km:19,sessions:[
+    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały — dłuższe odcinki',desc:'2 km spokojnie → 4 razy 1200 m mocno (3 okrążenia stadionu, 162–172 bpm) → 90 sek truchtu jako przerwa → 1 km spokojnie',note:'~53 min',tags:['interwały']},
+    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower',desc:'55 min spokojnie, możesz wybrać trasę z pagórkami',note:'Budujesz kondycję bez obciążenia stawów · ~55 min',tags:['aerob']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg z mocniejszą końcówką',desc:'9 km spokojnie — ostatnie 2 km przyspiesz do 144–162 bpm',note:'~55 min',tags:['spokojny']},
     {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja BAZA — pełna sesja z modułu',note:'30 min',tags:['mobilność','opcja']},
   ]},
-  {w:6,phase:'budowanie',km:21,sessions:[
-    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Krótkie sprinty — szybkość',desc:'2 km rozgrzewki → 8 razy 400 m (= 1 okrążenie stadionu) prawie na 100% → 60 sek odpoczynku między każdym → 1 km wyciszenia',note:'1:36–1:40/400 m · szybko ale kontrolowanie · ~50 min',tags:['sprinty','szybkość']},
-    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki + mobilność',desc:'6 serii drążków prawie do maksimum + 15 min sesji mobilności z modułu BUDOWANIE',note:'~45 min',tags:['siła','mobilność']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Długi bieg',desc:'13 km spokojnym tempem',note:'~78 min · spokojnie przez całą drogę',tags:['długi']},
+  {w:6,phase:'budowanie',km:18,sessions:[
+    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Krótkie sprinty — szybkość',desc:'2 km spokojnie → 8 razy 400 m prawie na 100% (172–178 bpm) → 60 sek odpoczynku między każdym → 1 km spokojnie',note:'400 m = 1 okrążenie stadionu · ~50 min',tags:['sprinty','szybkość']},
+    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki + mobilność',desc:'6 serii drążków prawie do maksimum + 15 min sesji mobilności BUDOWANIE',note:'~45 min',tags:['siła','mobilność']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg',desc:'9 km spokojnie (120–143 bpm)',note:'~55 min',tags:['spokojny']},
     {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja BUDOWANIE z modułu',note:'28 min',tags:['mobilność','opcja']},
   ]},
-  {w:7,phase:'budowanie',km:23,sessions:[
-    {day:1,sport:'run',type:'tempo',icon:'💨',title:'Bieg progowy — 20 min bez przerwy',desc:'2 km rozgrzewki → 20 min biegu mocno bez przerwy (próg tlenowy — ciężko, ale możesz powiedzieć krótkie zdanie) → 1 km wyciszenia',note:'5:25/km · dłużej niż tyg. 2 — sprawdź czy utrzymasz tempo · ~50 min',tags:['mocny','próg']},
-    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower łatwy',desc:'55 min spokojnie — aktywna regeneracja po mocnym biegu progowym',note:'Nogi odpoczywają ale są w ruchu — przyspiesza regenerację',tags:['regeneracja']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Długi bieg + przyspieszenia na końcu',desc:'14 km spokojnie + 4 krótkie przyspieszenia po 100 m na samym końcu',note:'~84 min',tags:['długi']},
+  {w:7,phase:'budowanie',km:19,sessions:[
+    {day:1,sport:'run',type:'tempo',icon:'💨',title:'Bieg mocny — 20 min bez przerwy',desc:'2 km spokojnie → 20 min biegu mocno bez przerwy (144–162 bpm) → 1 km spokojnie',note:'Dłużej niż tyg. 2 — sprawdź czy utrzymasz · ~40 min',tags:['mocny']},
+    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower łatwy',desc:'55 min spokojnie — aktywna regeneracja po mocnym biegu',note:'~55 min',tags:['regeneracja']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg + przyspieszenia',desc:'9 km spokojnie + 4 krótkie przyspieszenia po 100 m na końcu',note:'~57 min',tags:['spokojny']},
     {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja BUDOWANIE — stabilizacja brzucha i ćwiczenie jednonóż',note:'28 min',tags:['mobilność','opcja']},
   ]},
-  {w:8,phase:'budowanie',km:17,sessions:[
-    {day:1,sport:'run',type:'easy',icon:'🏃',title:'Łatwy — tydzień odciążający',desc:'8 km bardzo spokojnie — zaplanowany lżejszy tydzień przed kolejnym blokiem',note:'~52 min · nie przyspieszaj',tags:['łatwy','regeneracja']},
-    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki — test siły',desc:'5 serii drążków, w ostatniej serii zrób tyle powtórzeń ile możesz — zanotuj wynik w Rekordach',note:'~35 min · to jest Twój aktualny rekord na drążkach',tags:['siła','rekord']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Krótszy długi bieg',desc:'10 km spokojnie',note:'~62 min',tags:['długi']},
-    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja regeneracyjna z modułu — spokojnie',note:'20 min',tags:['mobilność','opcja']},
+  {w:8,phase:'budowanie',km:15,sessions:[
+    {day:1,sport:'run',type:'easy',icon:'🏃',title:'Łatwy — tydzień odciążający',desc:'7 km spokojnie — zaplanowany lżejszy tydzień',note:'~42 min · nie przyspieszaj',tags:['łatwy','regeneracja']},
+    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki — test siły',desc:'5 serii drążków, w ostatniej serii zrób tyle powtórzeń ile możesz — zanotuj wynik w Rekordach',note:'~35 min · to jest Twój aktualny rekord',tags:['siła','rekord']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg',desc:'8 km spokojnie',note:'~48 min',tags:['spokojny']},
+    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja regeneracyjna z modułu',note:'20 min',tags:['mobilność','opcja']},
   ]},
-  {w:9,phase:'budowanie',km:25,sessions:[
-    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały długie — wytrzymałość',desc:'2 km rozgrzewki → 3 razy 2 km mocno (2 km = ~10 min biegu na maksa) → 2 min truchtu jako przerwa → 1 km wyciszenia',note:'4:50/km · wymagające — to najcięższy trening biegowy dotąd · ~55 min',tags:['interwały']},
-    {day:2,sport:'bike',type:'tempo',icon:'🚴',title:'Rower z mocniejszą środkową częścią',desc:'55 min na rowerze — środkowe 20 min jedź wyraźnie mocniej (czujesz wysiłek ale oddychasz rytmicznie)',note:'Budujesz kondycję bez ryzyka kontuzji biegowych',tags:['mocny']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Długi bieg z przyspieszoną końcówką',desc:'15 km spokojnie — pod koniec biegniesz wyraźnie szybciej niż na początku (progresja tempa)',note:'~88 min — najważniejszy trening tygodnia 9',tags:['długi']},
+  {w:9,phase:'budowanie',km:20,sessions:[
+    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały długie — wytrzymałość',desc:'2 km spokojnie → 3 razy 2 km mocno (162–172 bpm) → 2 min truchtu jako przerwa → 1 km spokojnie',note:'Najcięższy trening dotąd · ~55 min',tags:['interwały']},
+    {day:2,sport:'bike',type:'tempo',icon:'🚴',title:'Rower z mocniejszą środkową częścią',desc:'55 min — środkowe 20 min jedź wyraźnie mocniej (144–162 bpm)',note:'~55 min',tags:['mocny']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg z przyspieszoną końcówką',desc:'10 km spokojnie — ostatnie 2 km przyspiesz stopniowo',note:'~60 min',tags:['spokojny']},
     {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja BUDOWANIE — pełna sesja z modułu',note:'30 min',tags:['mobilność','opcja']},
   ]},
-  {w:10,phase:'budowanie',km:26,sessions:[
-    {day:1,sport:'run',type:'tempo',icon:'💨',title:'Bieg progowy — 25 min bez przerwy',desc:'2 km rozgrzewki → 25 min biegu mocno bez przerwy → 1 km wyciszenia',note:'5:22/km · dłużej niż tyg. 7 — sprawdź postęp formy · ~55 min',tags:['mocny','próg']},
+  {w:10,phase:'budowanie',km:20,sessions:[
+    {day:1,sport:'run',type:'tempo',icon:'💨',title:'Bieg mocny — 25 min bez przerwy',desc:'2 km spokojnie → 25 min biegu mocno bez przerwy (144–162 bpm) → 1 km spokojnie',note:'Dłużej niż tyg. 7 — sprawdź postęp formy · ~45 min',tags:['mocny']},
     {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki + mobilność',desc:'7 serii drążków prawie do maksimum + sesja mobilności BUDOWANIE',note:'~50 min',tags:['siła','mobilność']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Długi bieg z końcówką w tempie maratońskim',desc:'15 km spokojnie — ostatnie 3 km przyspiesz do tempa maratońskiego (kontrolowane, nie sprint)',note:'~88 min',tags:['długi']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg z mocniejszą końcówką',desc:'10 km spokojnie — ostatnie 3 km przyspiesz do 144–162 bpm',note:'~60 min',tags:['spokojny']},
     {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja BUDOWANIE — ćwiczenia stabilizacyjne',note:'30 min',tags:['mobilność','opcja']},
   ]},
-  {w:11,phase:'szczyt',km:27,sessions:[
-    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały szczytowe — krótszy odpoczynek',desc:'2 km rozgrzewki → 5 razy 1 km mocno → tylko 60 sek truchtu jako przerwa (krócej niż zwykle!) → 1 km wyciszenia',note:'4:47/km · krótszy odpoczynek = większe wyzwanie · ~52 min',tags:['interwały']},
-    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower łatwy',desc:'50 min spokojnie — zachowaj świeżość nóg przed długim biegiem',note:'Nie forsuj — jutro najdłuższy bieg planu',tags:['regeneracja']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Szczytowy długi bieg',desc:'16 km spokojnym tempem — to jest najdłuższy bieg w całym planie',note:'~94 min — to jest szczyt Twojego planu, gratulacje!',tags:['długi']},
-    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja SZCZYT — stabilizacja boczna i ćwiczenia bioder',note:'30 min',tags:['mobilność','opcja']},
+  {w:11,phase:'forma',km:21,sessions:[
+    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały — krótszy odpoczynek',desc:'2 km spokojnie → 5 razy 1 km mocno (162–172 bpm) → tylko 60 sek truchtu jako przerwa → 1 km spokojnie',note:'Krótszy odpoczynek = większe wyzwanie · ~52 min',tags:['interwały']},
+    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower łatwy',desc:'50 min spokojnie — zachowaj świeżość nóg',note:'~50 min',tags:['regeneracja']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg',desc:'10 km spokojnie (120–143 bpm)',note:'~60 min',tags:['spokojny']},
+    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja FORMA — stabilizacja boczna i ćwiczenia bioder',note:'30 min',tags:['mobilność','opcja']},
   ]},
-  {w:12,phase:'szczyt',km:19,sessions:[
-    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały — start zmniejszania obciążenia',desc:'2 km rozgrzewki → 4 razy 1 km mocno → 90 sek truchtu jako przerwa → 1 km wyciszenia',note:'~48 min · lżej niż tyg. 11 — świadomie zmniejszamy obciążenie przed startem',tags:['interwały']},
-    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki — lekko',desc:'5 serii drążków z dłuższymi przerwami — to część przygotowania do zawodów, nie forsuj',note:'~30 min · zachowaj siłę na zawody',tags:['siła']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Krótszy długi bieg',desc:'11 km spokojnie',note:'~66 min',tags:['długi']},
-    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja mobilności — spokojnie i relaksacyjnie',note:'25 min',tags:['mobilność','opcja']},
+  {w:12,phase:'forma',km:16,sessions:[
+    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały — tydzień odciążający',desc:'2 km spokojnie → 4 razy 1 km mocno → 90 sek truchtu jako przerwa → 1 km spokojnie',note:'Lżej niż tyg. 11 · ~48 min',tags:['interwały']},
+    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki — lekko',desc:'5 serii drążków z dłuższymi przerwami',note:'~30 min · tydzień odciążający',tags:['siła']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg',desc:'8 km spokojnie',note:'~48 min',tags:['spokojny']},
+    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja mobilności — spokojnie',note:'25 min',tags:['mobilność','opcja']},
   ]},
-  {w:13,phase:'szczyt',km:16,sessions:[
-    {day:1,sport:'run',type:'tempo',icon:'💨',title:'Bieg progowy — krótki',desc:'2 km rozgrzewki → 15 min biegu mocno → 1 km wyciszenia',note:'~42 min · krócej niż wcześniej — zmniejszamy obciążenie przed startem',tags:['mocny']},
-    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower łatwy',desc:'40 min spokojnie — kręć nogi, absolutnie nie forsuj',note:'Za tydzień start — zachowaj energię',tags:['regeneracja']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Sprawdzenie tempa zawodów',desc:'10 km — środkowe 4 km biegnij w tempie docelowym na zawodach (sprawdź jak czujesz to tempo w środku biegu)',note:'~60 min · poczuj formę — powinna być lepsza niż 2 tygodnie temu',tags:['długi']},
-    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja SZCZYT z modułu — 20 min',note:'20 min',tags:['mobilność','opcja']},
+  {w:13,phase:'forma',km:19,sessions:[
+    {day:1,sport:'run',type:'tempo',icon:'💨',title:'Bieg mocny — 20 min',desc:'2 km spokojnie → 20 min biegu mocno (144–162 bpm) → 1 km spokojnie',note:'~40 min',tags:['mocny']},
+    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower łatwy',desc:'50 min spokojnie',note:'Aktywna regeneracja · ~50 min',tags:['regeneracja']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg z oceną formy',desc:'10 km — środkowe 4 km biegnij nieco mocniej (144–155 bpm) i sprawdź jak się czujesz w porównaniu do tyg. 5',note:'~60 min',tags:['spokojny']},
+    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja FORMA z modułu',note:'20 min',tags:['mobilność','opcja']},
   ]},
-  {w:14,phase:'szczyt',km:10,sessions:[
-    {day:1,sport:'run',type:'easy',icon:'🏃',title:'Łatwy + przyspieszenia przed startem',desc:'6 km spokojnie + 6 krótkich przyspieszeń po 100 m — obudź nogi przed zawodami',note:'~42 min · czujesz szybkość bez zmęczenia',tags:['łatwy']},
-    {day:2,sport:'run',type:'tempo',icon:'💨',title:'Krótki bieg mocny',desc:'2 km rozgrzewki → 10 min biegu mocno → 1 km wyciszenia',note:'~35 min · krótko i szybko — odświeżasz układ nerwowy przed startem',tags:['mocny']},
-    {day:3,sport:'race',type:'race',icon:'🏆',title:'PÓŁMARATON CRACOVIA',desc:'21.1 km — cel: sub 1:30:00',note:'Pierwsze 5 km WOLNIEJ niż planujesz! Nie wychodź za mocno!',tags:['start','wyścig']},
-    {day:4,sport:'run',type:'easy',icon:'💆',title:'Odpoczynek + rolling',desc:'Rolling łydek + rozluźnienie pośladka, delikatny masaż — zasłużone odpoczywanie',note:'15 min · dzisiaj tylko odpoczywasz',tags:['regeneracja','mobilność']},
+  {w:14,phase:'forma',km:19,sessions:[
+    {day:1,sport:'run',type:'easy',icon:'🏃',title:'Łatwy bieg + przyspieszenia',desc:'7 km spokojnie + 6 krótkich przyspieszeń po 100 m na końcu',note:'~47 min',tags:['łatwy']},
+    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki + mobilność',desc:'6 serii drążków prawie do maksimum + 15 min mobilności',note:'~45 min',tags:['siła','mobilność']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg',desc:'10 km spokojnie (120–143 bpm)',note:'~60 min',tags:['spokojny']},
+    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja FORMA — pełna sesja z modułu',note:'25 min',tags:['mobilność','opcja']},
   ]},
-  {w:15,phase:'szczyt',km:20,sessions:[
-    {day:1,sport:'run',type:'easy',icon:'🏃',title:'Regeneracja po zawodach',desc:'7 km bardzo spokojnie — nogi mogą być ciężkie, to absolutnie normalne po półmaratonie',note:'Tętno poniżej 145 · ~48 min · nie oceniaj siebie po tym biegu',tags:['łatwy','regeneracja']},
-    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower regeneracyjny',desc:'40 min spokojnie na rowerze — przyspiesza regenerację mięśni po zawodach',note:'Bez siłowania · to aktywna regeneracja',tags:['regeneracja']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Powrót do formy',desc:'12 km spokojnie — pierwszy normalny długi bieg po starcie',note:'~72 min · jeśli nogi wróciły do normy — gratulacje',tags:['długi']},
-    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja UTRZYMANIE — rolling + ćwiczenia mobilności',note:'25 min',tags:['mobilność','opcja']},
+  {w:15,phase:'forma',km:20,sessions:[
+    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały — sprawdzenie postępu',desc:'2 km spokojnie → 5 razy 1 km mocno (162–172 bpm) → 75 sek truchtu przerwa → 1 km spokojnie',note:'Porównaj z tyg. 3 — powinieneś czuć wyraźny postęp · ~52 min',tags:['interwały']},
+    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower łatwy',desc:'50 min spokojnie',note:'Aktywna regeneracja · ~50 min',tags:['regeneracja']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg z mocniejszą końcówką',desc:'10 km spokojnie — ostatnie 2 km przyspiesz do 144–162 bpm',note:'~60 min',tags:['spokojny']},
+    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja UTRZYMANIE — rolling + ćwiczenia',note:'25 min',tags:['mobilność','opcja']},
   ]},
-  {w:16,phase:'utrzymanie',km:22,sessions:[
-    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały — utrzymanie formy',desc:'2 km rozgrzewki → 5 razy 1 km mocno → 75 sek truchtu jako przerwa → 1 km wyciszenia',note:'4:50/km · podobnie do tyg. 9, sprawdź czy forma trzyma · ~52 min',tags:['interwały']},
+  {w:16,phase:'utrzymanie',km:20,sessions:[
+    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały — utrzymanie formy',desc:'2 km spokojnie → 5 razy 1 km mocno (162–172 bpm) → 75 sek truchtu przerwa → 1 km spokojnie',note:'~52 min · sprawdź czy forma trzyma poziom',tags:['interwały']},
     {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki + mobilność',desc:'6 serii drążków prawie do maksimum + sesja mobilności UTRZYMANIE',note:'~45 min',tags:['siła','mobilność']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Długi bieg',desc:'13 km spokojnym tempem',note:'~78 min',tags:['długi']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg',desc:'10 km spokojnie (120–143 bpm)',note:'~60 min',tags:['spokojny']},
     {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja UTRZYMANIE z modułu',note:'25 min',tags:['mobilność','opcja']},
   ]},
-  {w:17,phase:'utrzymanie',km:24,sessions:[
-    {day:1,sport:'run',type:'tempo',icon:'💨',title:'Bieg progowy — utrzymanie formy',desc:'2 km rozgrzewki → 22 min biegu mocno → 1 km wyciszenia',note:'5:22/km · ~52 min · forma powinna tu być stabilna na wysokim poziomie',tags:['mocny','próg']},
-    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower łatwy',desc:'55 min spokojnie, równy rytm pedałowania',note:'',tags:['regeneracja']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Długi bieg z końcówką w tempie maratońskim',desc:'14 km spokojnie — ostatnie 3 km przyspiesz do tempa maratońskiego',note:'~84 min',tags:['długi']},
+  {w:17,phase:'utrzymanie',km:20,sessions:[
+    {day:1,sport:'run',type:'tempo',icon:'💨',title:'Bieg mocny — 22 min',desc:'2 km spokojnie → 22 min biegu mocno (144–162 bpm) → 1 km spokojnie',note:'~44 min · forma powinna być stabilna na wysokim poziomie',tags:['mocny']},
+    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower łatwy',desc:'55 min spokojnie, równy rytm pedałowania',note:'~55 min',tags:['regeneracja']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg z mocniejszą końcówką',desc:'10 km spokojnie — ostatnie 3 km przyspiesz do 144–162 bpm',note:'~60 min',tags:['spokojny']},
     {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja UTRZYMANIE — pełna sesja z modułu',note:'30 min',tags:['mobilność','opcja']},
   ]},
-  {w:18,phase:'utrzymanie',km:22,sessions:[
-    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały + sprinty na końcu',desc:'2 km rozgrzewki → 4 razy 1 km mocno → 90 sek truchtu przerwa → 6 krótkich sprintów po 100 m → wyciszenie',note:'~55 min · połączenie wytrzymałości i szybkości',tags:['interwały','sprinty']},
-    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki — test siły (porównaj z tyg. 8)',desc:'Ostatnia seria do maksimum — zanotuj wynik w Rekordach i porównaj z tygodniem 8',note:'~35 min · mierzysz postęp siłowy przez ostatnie 10 tygodni',tags:['siła','rekord']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Długi bieg z tempem maratońskim',desc:'13 km spokojnie — ostatnie kilometry przyspiesz do tempa maratońskiego',note:'~78 min',tags:['długi']},
+  {w:18,phase:'utrzymanie',km:19,sessions:[
+    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały + sprinty',desc:'2 km spokojnie → 4 razy 1 km mocno → 90 sek truchtu przerwa → 6 krótkich sprintów po 100 m → 1 km spokojnie',note:'~55 min · połączenie wytrzymałości i szybkości',tags:['interwały','sprinty']},
+    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki — test siły (porównaj z tyg. 8)',desc:'Ostatnia seria do maksimum — zanotuj wynik w Rekordach i porównaj z tygodniem 8',note:'~35 min · mierzysz postęp siłowy przez 10 tygodni',tags:['siła','rekord']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg z mocniejszą końcówką',desc:'10 km spokojnie — ostatnie 2 km mocniej (144–162 bpm)',note:'~60 min',tags:['spokojny']},
     {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja UTRZYMANIE — pełna sesja z modułu',note:'30 min',tags:['mobilność','opcja']},
   ]},
-  {w:19,phase:'utrzymanie',km:20,sessions:[
-    {day:1,sport:'run',type:'tempo',icon:'💨',title:'Bieg progowy — 2 serie',desc:'2 km rozgrzewki → 10 min biegu mocno → 2 min truchtu jako przerwa → kolejne 10 min biegu mocno → 1 km wyciszenia',note:'5:22/km · ~50 min',tags:['mocny','próg']},
-    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower łatwy',desc:'50 min spokojnie — aktywna regeneracja',note:'',tags:['regeneracja']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Długi bieg',desc:'12 km spokojnym tempem',note:'~72 min',tags:['długi']},
+  {w:19,phase:'utrzymanie',km:19,sessions:[
+    {day:1,sport:'run',type:'tempo',icon:'💨',title:'Bieg mocny — 2 serie po 10 min',desc:'2 km spokojnie → 10 min mocno (144–162 bpm) → 2 min truchtu przerwa → kolejne 10 min mocno → 1 km spokojnie',note:'~50 min',tags:['mocny']},
+    {day:2,sport:'bike',type:'easy',icon:'🚴',title:'Rower łatwy',desc:'50 min spokojnie — aktywna regeneracja',note:'~50 min',tags:['regeneracja']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Spokojny bieg',desc:'10 km spokojnie (120–143 bpm)',note:'~60 min',tags:['spokojny']},
     {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność (opcja)',desc:'Sesja UTRZYMANIE z modułu',note:'25 min',tags:['mobilność','opcja']},
   ]},
-  {w:20,phase:'utrzymanie',km:18,sessions:[
-    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały końcowe — 20 tygodni za Tobą!',desc:'2 km rozgrzewki → 4 razy 1 km mocno → 90 sek truchtu przerwa → 1 km wyciszenia',note:'4:52/km · ~52 min · ostatnie prawdziwe interwały planu',tags:['interwały']},
-    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki — finałowy test (porównaj z tyg. 8 i 18)',desc:'Ostatnia seria do maksimum — zanotuj wynik i porównaj z tygodniem 8 i 18. To jest Twój progres przez 20 tygodni!',note:'~35 min · 20 tygodni ciężkiej pracy — zanotuj wynik!',tags:['siła','rekord']},
-    {day:3,sport:'run',type:'long',icon:'📏',title:'Finałowy długi bieg — celebracja!',desc:'10 km spokojnie — uczcij zakończenie 20 tygodni systematycznej pracy',note:'~62 min · biegniesz dziś dla siebie',tags:['długi']},
-    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność — zakończenie planu',desc:'Pełna sesja UTRZYMANIE — ostatnie ćwiczenia z 20-tygodniowego planu',note:'30 min · gratulacje!',tags:['mobilność','opcja']},
+  {w:20,phase:'utrzymanie',km:16,sessions:[
+    {day:1,sport:'run',type:'interval',icon:'⚡',title:'Interwały końcowe — 20 tygodni!',desc:'2 km spokojnie → 4 razy 1 km mocno → 90 sek truchtu przerwa → 1 km spokojnie',note:'~50 min · ostatnie interwały planu',tags:['interwały']},
+    {day:2,sport:'pull',type:'easy',icon:'💪',title:'Drążki — finałowy test (porównaj z tyg. 8 i 18)',desc:'Ostatnia seria do maksimum — zanotuj wynik i porównaj z tygodniem 8 i 18',note:'~35 min · to jest Twój postęp przez 20 tygodni!',tags:['siła','rekord']},
+    {day:3,sport:'run',type:'long',icon:'📏',title:'Finałowy bieg — celebracja!',desc:'8 km spokojnie — uczcij zakończenie 20 tygodni pracy',note:'~48 min · biegniesz dziś dla siebie · gratulacje!',tags:['spokojny']},
+    {day:4,sport:'run',type:'easy',icon:'💆',title:'Mobilność — zakończenie planu',desc:'Pełna sesja UTRZYMANIE — ostatnie ćwiczenia planu',note:'30 min · gratulacje!',tags:['mobilność','opcja']},
   ]},
 ];
+
 
 // ═══════════════════════════════════════════════════════════════
 // MOBILITY — CONFIG
@@ -583,7 +586,7 @@ const PLAN_DATA = [
 const PHASES = {
   baza:{weeks:[1,5],color:'#22d3ee',label:'BAZA'},
   budowanie:{weeks:[6,10],color:'#a3e635',label:'BUDOWANIE'},
-  szczyt:{weeks:[11,15],color:'#fbbf24',label:'SZCZYT'},
+  forma:{weeks:[11,15],color:'#fbbf24',label:'FORMA'},
   utrzymanie:{weeks:[16,20],color:'#fb923c',label:'UTRZYMANIE'}
 };
 const CATS = {
