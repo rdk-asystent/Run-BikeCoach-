@@ -1226,6 +1226,27 @@ function renderPlan() {
   <div class="plan-prog"><div class="cl">Postęp planu 20 tygodni</div>
     <div class="pp-bar"><div class="pp-fill" style="width:${pct}%"></div></div>
     <div class="pp-stats">Sesji: <span>${doneSess}/${totalSess}</span> Tyg: <span>${weekNow}/20</span> Km plan: <span>${PLAN_DATA.slice(0,weekNow).reduce((s,w)=>s+w.km,0)}</span></div>
+  </div>
+  <div class="card" style="margin-bottom:9px">
+    <div class="cl" style="margin-bottom:8px">Skala wysiłku — jak rozumieć opisy</div>
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <div style="font-size:10px;font-weight:700;color:var(--cyan);min-width:70px">Spokojnie</div>
+        <div style="font-size:10px;color:var(--m2)">Mówisz pełne zdania · jak spacer ale szybszy · możesz biec godzinami</div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <div style="font-size:10px;font-weight:700;color:var(--amber);min-width:70px">Mocno</div>
+        <div style="font-size:10px;color:var(--m2)">Możesz powiedzieć krótkie zdanie · rytmiczne oddychanie · utrzymasz 30+ min</div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <div style="font-size:10px;font-weight:700;color:var(--rose);min-width:70px">Prawie na maksa</div>
+        <div style="font-size:10px;color:var(--m2)">Jedno słowo na oddechu · ciężko ale wytrzymasz 5–10 min · interwały</div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <div style="font-size:10px;font-weight:700;color:var(--lime);min-width:70px">Sprint</div>
+        <div style="font-size:10px;color:var(--m2)">Nie mówisz nic · 100% · tylko na 100–400 m, potem pełny odpoczynek</div>
+      </div>
+    </div>
   </div>`;
 
   PLAN_DATA.forEach((week, wi) => {
